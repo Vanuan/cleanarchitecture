@@ -1,6 +1,6 @@
 import { useUpdateTodo, useDeleteTodo } from "../../hooks/useTodos";
-import { Todo } from "../../../domain/entities/todo";
 import tw from "tailwind-styled-components";
+import { TodoViewModel } from "../../viewmodels/TodoViewModel";
 
 const ListItem = tw.div`
   flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm
@@ -35,44 +35,67 @@ const DeleteButton = tw.button`
 `;
 
 interface Props {
-  todo: Todo;
-  viewType: "list" | "board";
+  viewModel: TodoViewModel;
+  viewType: "list" | "board" | "table";
 }
 
-export function TodoItem({ todo, viewType }: Props) {
+export function TodoItem({ viewModel, viewType }: Props) {
   const { mutate: updateTodo } = useUpdateTodo();
   const { mutate: deleteTodo } = useDeleteTodo();
 
   const handleCompleteToggle = () => {
-    updateTodo({ id: todo.id, updates: { completed: !todo.completed } });
+    updateTodo({
+      id: viewModel.id,
+      updates: { completed: !viewModel.completed },
+    });
   };
 
   const handleDelete = () => {
-    deleteTodo(todo.id);
+    deleteTodo(viewModel.id);
   };
+  if (viewType === "table") {
+    return (
+      <>
+        <Checkbox
+          type="checkbox"
+          checked={viewModel.completed}
+          onChange={handleCompleteToggle}
+        />
+        <DeleteButton onClick={handleDelete}>Delete</DeleteButton>
+      </>
+    );
+  }
 
   return (
     <ListItem>
       <Checkbox
         type="checkbox"
-        checked={todo.completed}
+        checked={viewModel.completed}
         onChange={handleCompleteToggle}
       />
-      <Title $completed={todo.completed}>{todo.title}</Title>
+      <Title $completed={viewModel.completed}>{viewModel.title}</Title>
       {viewType === "list" && (
-        <Tag $completed={todo.completed}>
-          {todo.completed ? "Done" : "Todo"}
-        </Tag>
+        <Tag $completed={viewModel.completed}>{viewModel.displayStatus}</Tag>
       )}
       {viewType === "list" && (
         <TagsContainer>
-          {todo.tags.map((tag) => (
-            <Tag key={tag} $completed={todo.completed}>
+          {viewModel.tags.map((tag) => (
+            <Tag key={tag} $completed={viewModel.completed}>
               {tag}
             </Tag>
           ))}
         </TagsContainer>
       )}
+      {viewType === "table" && (
+        <TagsContainer>
+          {viewModel.tags.map((tag) => (
+            <Tag key={tag} $completed={viewModel.completed}>
+              {tag}
+            </Tag>
+          ))}
+        </TagsContainer>
+      )}
+
       <DeleteButton onClick={handleDelete}>Delete</DeleteButton>
     </ListItem>
   );
