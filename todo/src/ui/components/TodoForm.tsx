@@ -3,7 +3,7 @@ import { useCreateTodo } from "../hooks/useTodos";
 import tw from "tailwind-styled-components";
 
 const Form = tw.form`
-  flex gap-2 w-full max-w-md mx-auto p-4
+  flex gap-2 w-full max-w-4xl mx-auto p-4
 `;
 
 const Input = tw.input`
@@ -11,7 +11,7 @@ const Input = tw.input`
 `;
 
 const Button = tw.button`
-  px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
+  px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600
   transition-colors duration-200 font-medium
 `;
 
@@ -33,7 +33,9 @@ export function TodoForm() {
         type="text"
         placeholder="Add todo"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setTitle(e.target.value)
+        }
       />
       <Button type="submit">Add</Button>
     </Form>
