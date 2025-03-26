@@ -2,13 +2,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TodoList } from "./ui/components/TodoList";
 import { TodoForm } from "./ui/components/TodoForm";
 import { TodoService } from "./application/usecases/todo.service";
-import { InMemoryTodoRepository } from "./infrastructure/repositories/inmemory.todo.repository";
+import { LocalStorageTodoRepository } from "./infrastructure/repositories/localstorage.todo.repository";
 import { ServiceContext } from "./ui/hooks/useService";
 import { useState } from "react";
 
 function App() {
   const [queryClient] = useState(() => new QueryClient());
-  const [todoRepository] = useState(() => new InMemoryTodoRepository());
+  const [todoRepository] = useState(() => new LocalStorageTodoRepository());
   const [todoService] = useState(() => new TodoService(todoRepository));
 
   return (
