@@ -13,12 +13,22 @@ export class TodoService implements TodoUseCase {
     return this.todoRepository.findById(id);
   }
 
-  async create(data: Omit<Todo, "id" | "createdAt" | "updatedAt">): Promise<Todo> {
+  async create(
+    data: Omit<Todo, "id" | "createdAt" | "updatedAt" | "tags">,
+  ): Promise<Todo> {
+    const title = data.title;
+    const matches = title.match(/^\[(.*?)\]/);
+    const tags = matches ? [matches[1]] : [];
+    const titleWithoutTags = matches
+      ? title.replace(/^\[(.*?)\]\s*/, "")
+      : title;
+
     return this.todoRepository.create({
       ...data,
+      title: titleWithoutTags,
+      tags: tags,
     });
   }
-
   async update(id: string, updates: Partial<Todo>): Promise<Todo> {
     return this.todoRepository.update(id, {
       ...updates,

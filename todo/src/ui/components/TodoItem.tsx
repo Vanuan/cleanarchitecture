@@ -24,6 +24,11 @@ const Tag = tw.span<{ $completed?: boolean }>`
       : "bg-yellow-100 text-yellow-700"}
 `;
 
+const TagsContainer = tw.div`
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+`;
 const DeleteButton = tw.button`
   px-3 py-1 text-sm text-red-500 hover:text-red-700
   hover:bg-red-50 rounded transition-colors duration-200
@@ -58,6 +63,15 @@ export function TodoItem({ todo, viewType }: Props) {
         <Tag $completed={todo.completed}>
           {todo.completed ? "Done" : "Todo"}
         </Tag>
+      )}
+      {viewType === "list" && (
+        <TagsContainer>
+          {todo.tags.map((tag) => (
+            <Tag key={tag} $completed={todo.completed}>
+              {tag}
+            </Tag>
+          ))}
+        </TagsContainer>
       )}
       <DeleteButton onClick={handleDelete}>Delete</DeleteButton>
     </ListItem>
