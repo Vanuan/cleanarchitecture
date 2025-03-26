@@ -15,7 +15,7 @@ export function useCreateTodo() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Omit<Todo, "id" | "createdAt" | "updatedAt">) =>
+    mutationFn: (data: Omit<Todo, "id" | "createdAt" | "updatedAt" | "tags">) =>
       service.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });

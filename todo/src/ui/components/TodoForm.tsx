@@ -19,11 +19,11 @@ export function TodoForm() {
   const [title, setTitle] = useState("");
   const { mutate: createTodo } = useCreateTodo();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    createTodo({ title, completed: false });
+    await createTodo({ title, completed: false });
     setTitle("");
   };
 
