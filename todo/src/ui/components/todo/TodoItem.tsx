@@ -1,5 +1,5 @@
-import { useUpdateTodo, useDeleteTodo } from "../hooks/useTodos";
-import { Todo } from "../../domain/entities/todo";
+import { useUpdateTodo, useDeleteTodo } from "../../hooks/useTodos";
+import { Todo } from "../../../domain/entities/todo";
 import tw from "tailwind-styled-components";
 
 const ListItem = tw.div`

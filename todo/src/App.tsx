@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TodoList } from "./ui/components/TodoList";
-import { TodoForm } from "./ui/components/TodoForm";
+import { TodoList } from "./ui/components/todo/TodoList";
+import { TodoForm } from "./ui/components/todo/TodoForm";
 import { TodoService } from "./application/usecases/todo.service";
 import { LocalStorageTodoRepository } from "./infrastructure/repositories/localstorage.todo.repository";
 import { ServiceContext } from "./ui/hooks/useService";

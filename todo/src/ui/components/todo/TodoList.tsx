@@ -1,8 +1,10 @@
-import { useTodos, useUpdateTodo } from "../hooks/useTodos";
-import { TodoItem } from "./TodoItem";
 import tw from "tailwind-styled-components";
-import { Todo } from "../../domain/entities/todo";
-import { EntityList } from "./EntityList";
+
+import { Todo } from "../../../domain/entities/todo";
+import { useTodos, useUpdateTodo } from "../../hooks/useTodos";
+import { EntityList } from "../organisms/EntityList";
+
+import { TodoItem } from "./TodoItem";
 
 const LoadingText = tw.div`
   text-center text-gray-500 py-8
