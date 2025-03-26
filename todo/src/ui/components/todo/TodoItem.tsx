@@ -1,5 +1,5 @@
-import { useUpdateTodo, useDeleteTodo } from "../hooks/useTodos";
-import { Todo } from "../../domain/entities/todo";
+import { useUpdateTodo, useDeleteTodo } from "../../hooks/useTodos";
+import { Todo } from "../../../domain/entities/todo";
 import tw from "tailwind-styled-components";
 
 const ListItem = tw.div`
@@ -36,7 +36,7 @@ const DeleteButton = tw.button`
 
 interface Props {
   todo: Todo;
-  viewType: "list" | "grid";
+  viewType: "list" | "board";
 }
 
 export function TodoItem({ todo, viewType }: Props) {
