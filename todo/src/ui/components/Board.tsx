@@ -1,4 +1,4 @@
-import { DragDropContext, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, DropResult } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "./StrictModeDroppable";
 import tw from "tailwind-styled-components";
 
@@ -33,7 +33,7 @@ export function Board<T>({
   renderItem,
   getItemId,
 }: BoardProps<T>) {
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) {

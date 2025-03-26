@@ -36,7 +36,7 @@ const DeleteButton = tw.button`
 
 interface Props {
   todo: Todo;
-  viewType: "list" | "grid";
+  viewType: "list" | "board";
 }
 
 export function TodoItem({ todo, viewType }: Props) {
