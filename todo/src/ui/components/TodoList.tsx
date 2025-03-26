@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import { useTodos, useUpdateTodo } from "../hooks/useTodos";
 import { TodoItem } from "./TodoItem";
 import tw from "tailwind-styled-components";
-import { StrictModeDroppable } from "./StrictModeDroppable";
+import { Board } from "./Board";
+import { Todo } from "../../domain/entities/todo";
+import { List } from "./List";
 
 const Container = tw.div`
   w-full max-w-4xl mx-auto p-4
@@ -29,6 +30,30 @@ type ViewType = "list" | "board";
 
 export function TodoList() {
   const [viewType, setViewType] = useState<ViewType>("list");
+  const { data: todos, isLoading } = useTodos();
+  const { mutate: updateTodo } = useUpdateTodo();
+
+  const handleTodoUpdate = (id: string, columnId: string) => {
+    const completed = columnId === "completed";
+    updateTodo({ id: id, updates: { completed: completed } });
+  };
+
+  if (isLoading) {
+    return <LoadingText>Loading...</LoadingText>;
+  }
+
+  const boardColumns = [
+    {
+      id: "todo",
+      title: "To Do",
+      filter: (todo: Todo) => !todo.completed,
+    },
+    {
+      id: "completed",
+      title: "Done",
+      filter: (todo: Todo) => todo.completed,
+    },
+  ];
 
   return (
     <Container>
@@ -47,126 +72,22 @@ export function TodoList() {
         </ToggleButton>
       </ViewToggle>
 
-      {viewType === "list" ? <List /> : <Board />}
+      {viewType === "list" ? (
+        <List
+          items={todos || []}
+          renderItem={(todo) => (
+            <TodoItem key={todo.id} todo={todo} viewType="list" />
+          )}
+        />
+      ) : (
+        <Board
+          items={todos || []}
+          columns={boardColumns}
+          onItemUpdate={handleTodoUpdate}
+          renderItem={(todo) => <TodoItem todo={todo} viewType="grid" />}
+          getItemId={(todo) => todo.id}
+        />
+      )}
     </Container>
-  );
-}
-
-function List() {
-  const { data: todos, isLoading } = useTodos();
-
-  if (isLoading) {
-    return <LoadingText>Loading...</LoadingText>;
-  }
-
-  const ListView = tw.ul`
-    flex flex-col gap-3
-  `;
-  return (
-    <ListView>
-      {todos?.map((todo) => (
-        <TodoItem key={todo.id} todo={todo} viewType="list" />
-      ))}
-    </ListView>
-  );
-}
-
-function Board() {
-  const { data: todos, isLoading } = useTodos();
-  const { mutate: updateTodo } = useUpdateTodo();
-
-  if (isLoading) {
-    return <LoadingText>Loading...</LoadingText>;
-  }
-
-  const GridView = tw.div`
-    grid grid-cols-2 gap-4
-  `;
-
-  const Column = tw.div`
-    flex flex-col gap-3 p-4 bg-gray-50 rounded-lg min-h-[200px]
-  `;
-
-  const ColumnTitle = tw.h2`
-    text-lg font-semibold mb-2 text-gray-700
-  `;
-
-  const todoItems = todos?.filter((todo) => !todo.completed) || [];
-  const completedItems = todos?.filter((todo) => todo.completed) || [];
-
-  const onDragEnd = (result: any) => {
-    const { destination, source, draggableId } = result;
-
-    if (!destination) {
-      return;
-    }
-
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
-
-    const todo = todos?.find((todo) => todo.id === draggableId);
-
-    if (!todo) {
-      return;
-    }
-
-    const completed = destination.droppableId === "completed";
-
-    if (todo.completed !== completed) {
-      updateTodo({ id: todo.id, updates: { completed: completed } });
-    }
-  };
-
-  return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <GridView>
-        <StrictModeDroppable droppableId="todo">
-          {(provided) => (
-            <Column ref={provided.innerRef} {...provided.droppableProps}>
-              <ColumnTitle>To Do</ColumnTitle>
-              {todoItems.map((todo, index) => (
-                <Draggable key={todo.id} draggableId={todo.id} index={index}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <TodoItem todo={todo} viewType="grid" />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </Column>
-          )}
-        </StrictModeDroppable>
-        <StrictModeDroppable droppableId="completed">
-          {(provided) => (
-            <Column ref={provided.innerRef} {...provided.droppableProps}>
-              <ColumnTitle>Done</ColumnTitle>
-              {completedItems.map((todo, index) => (
-                <Draggable key={todo.id} draggableId={todo.id} index={index}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <TodoItem todo={todo} viewType="grid" />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </Column>
-          )}
-        </StrictModeDroppable>
-      </GridView>
-    </DragDropContext>
   );
 }
