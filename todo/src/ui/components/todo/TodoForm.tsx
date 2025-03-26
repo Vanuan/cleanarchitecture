@@ -3,7 +3,7 @@ import { useCreateTodo } from "../../hooks/useTodos";
 import tw from "tailwind-styled-components";
 
 const Form = tw.form`
-  flex gap-2 w-full max-w-4xl mx-auto p-4
+  flex flex-col gap-4 w-full
 `;
 
 const Input = tw.input`
@@ -15,7 +15,11 @@ const Button = tw.button`
   transition-colors duration-200 font-medium
 `;
 
-export function TodoForm() {
+interface TodoFormProps {
+  onClose: () => void;
+}
+
+export function TodoForm({ onClose }: TodoFormProps) {
   const [title, setTitle] = useState("");
   const { mutate: createTodo } = useCreateTodo();
 
@@ -25,6 +29,7 @@ export function TodoForm() {
 
     await createTodo({ title, completed: false });
     setTitle("");
+    onClose(); // close the modal
   };
 
   return (

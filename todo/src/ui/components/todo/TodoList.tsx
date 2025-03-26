@@ -5,6 +5,7 @@ import { useTodos, useUpdateTodo } from "../../hooks/useTodos";
 import { EntityList } from "../organisms/EntityList";
 
 import { TodoItem } from "./TodoItem";
+import { TodoForm } from "./TodoForm";
 
 const LoadingText = tw.div`
   text-center text-gray-500 py-8
@@ -37,7 +38,7 @@ export function TodoList() {
   ];
 
   return (
-    <EntityList
+    <EntityList<Todo, {}>
       items={todos || []}
       renderItem={(todo, viewType) => (
         <TodoItem key={todo.id} todo={todo} viewType={viewType} />
@@ -45,6 +46,9 @@ export function TodoList() {
       getItemId={(todo) => todo.id}
       onItemUpdate={handleTodoUpdate}
       boardColumns={boardColumns}
+      EntityForm={TodoForm}
+      formProps={{}}
+      addButtonText="Add Todo"
     />
   );
 }

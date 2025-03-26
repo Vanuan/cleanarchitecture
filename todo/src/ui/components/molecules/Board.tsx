@@ -1,5 +1,5 @@
 import { DragDropContext, Draggable, DropResult } from "react-beautiful-dnd";
-import { StrictModeDroppable } from "./StrictModeDroppable";
+import { StrictModeDroppable } from "../atoms/StrictModeDroppable";
 import tw from "tailwind-styled-components";
 
 const GridView = tw.div`
