@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import tw from "tailwind-styled-components";
 import { Board } from "../molecules/Board";
 import { List } from "../molecules/List";
-import { createPortal } from "react-dom"; // Import createPortal
+import { createPortal } from "react-dom";
 
 const Container = tw.div`
   w-full max-w-4xl mx-auto p-4
@@ -52,6 +52,7 @@ interface EntityListProps<T, F> {
   EntityForm: React.ComponentType<F & { onClose: () => void }>; // Updated type definition
   formProps: F;
   addButtonText?: string;
+  isLoading?: boolean;
 }
 
 export function EntityList<T, F>({
@@ -63,20 +64,30 @@ export function EntityList<T, F>({
   EntityForm,
   formProps,
   addButtonText = "Add Entity",
+  isLoading = false,
 }: EntityListProps<T, F>) {
   const [viewType, setViewType] = useState<ViewType>("list");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const toggleForm = () => {
-    setIsFormOpen(!isFormOpen);
-  };
+  const toggleForm = useCallback(() => setIsFormOpen((prev) => !prev), []);
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-      toggleForm();
-    }
-  };
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node))
+        toggleForm();
+    },
+    [toggleForm],
+  );
+
+  // escape key handling
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isFormOpen) toggleForm();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [isFormOpen, toggleForm]);
 
   return (
     <Container>
@@ -85,12 +96,14 @@ export function EntityList<T, F>({
         <ToggleButton
           $active={viewType === "list"}
           onClick={() => setViewType("list")}
+          aria-pressed={viewType === "list"}
         >
           List View
         </ToggleButton>
         <ToggleButton
           $active={viewType === "board"}
           onClick={() => setViewType("board")}
+          aria-pressed={viewType === "board"}
         >
           Board View
         </ToggleButton>
@@ -100,14 +113,18 @@ export function EntityList<T, F>({
         createPortal(
           <ModalBackdrop onClick={handleBackdropClick}>
             <ModalContainer ref={modalRef}>
-              <CloseButton onClick={toggleForm}>&times;</CloseButton>
+              <CloseButton onClick={toggleForm} aria-label="Close modal">
+                ×
+              </CloseButton>
               <EntityForm {...formProps} onClose={toggleForm} />
             </ModalContainer>
           </ModalBackdrop>,
           document.body,
         )}
 
-      {viewType === "list" ? (
+      {isLoading ? (
+        <div className="text-center">Loading...</div>
+      ) : viewType === "list" ? (
         <List items={items} renderItem={(item) => renderItem(item, "list")} />
       ) : boardColumns && onItemUpdate ? (
         <Board
