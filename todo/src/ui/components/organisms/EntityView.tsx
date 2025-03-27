@@ -45,28 +45,26 @@ const ViewToggle = tw.div`
 `;
 
 const ToggleButton = tw.button<{ $active?: boolean }>`
-  px-4 py-2 rounded-lg transition-colors duration-200
+  px-4 py-2 rounded-md transition-colors duration-200
   ${({ $active }) =>
-    $active
-      ? "bg-blue-500 text-white"
-      : "bg-gray-100 text-gray-600 hover:bg-gray-200"}
+    $active ? "bg-blue-100 text-blue-600" : "text-gray-600 hover:bg-gray-100"}
 `;
 
 const AddButton = tw.button`
-  px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200
+  inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-500
+  text-white hover:bg-blue-600 transition-colors
 `;
 
 const ModalBackdrop = tw.div`
-  fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 z-40
-  flex items-center justify-center
+  fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center p-4 z-50
 `;
 
 const ModalContainer = tw.div`
-  bg-white rounded-lg shadow-xl z-50 w-full max-w-md p-6 relative
+  bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative
 `;
 
 const CloseButton = tw.button`
-  absolute top-2 right-2 text-gray-500 hover:text-gray-700
+  absolute top-4 right-4 text-gray-400 hover:text-gray-600
 `;
 
 export function EntityView<T extends Entity, P = {}>({

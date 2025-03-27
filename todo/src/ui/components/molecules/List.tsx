@@ -1,7 +1,7 @@
 import tw from "tailwind-styled-components";
 
 const ListView = tw.ul`
-  flex flex-col gap-3
+  flex flex-col gap-4
 `;
 
 interface ListProps<T> {

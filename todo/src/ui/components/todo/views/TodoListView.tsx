@@ -1,7 +1,6 @@
 import React from "react";
 import { TodoViewModel } from "../../../viewmodels/TodoViewModel";
 import { List } from "../../molecules/List";
-import { TodoItem } from "../TodoItem";
 
 interface TodoListViewProps {
   items: TodoViewModel[];

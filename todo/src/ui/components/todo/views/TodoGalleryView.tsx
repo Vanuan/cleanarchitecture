@@ -9,11 +9,11 @@ interface TodoGalleryViewProps {
 }
 
 const GalleryContainer = tw.div`
-  grid grid-cols-3 gap-4
+  grid grid-cols-3 gap-6
 `;
 
 const GalleryItem = tw.div`
-  p-4 bg-white rounded-lg shadow-md
+  p-4 bg-white rounded-lg shadow-sm
 `;
 
 const TodoGalleryView: React.FC<TodoGalleryViewProps> = ({

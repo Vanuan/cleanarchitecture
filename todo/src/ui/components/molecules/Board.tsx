@@ -3,11 +3,11 @@ import { StrictModeDroppable } from "../atoms/StrictModeDroppable";
 import tw from "tailwind-styled-components";
 
 const GridView = tw.div`
-  grid grid-cols-2 gap-4
+  grid grid-cols-2 gap-6
 `;
 
 const Column = tw.div`
-  flex flex-col gap-3 p-4 bg-gray-50 rounded-lg min-h-[200px]
+  flex flex-col gap-4 p-4 bg-white rounded-lg shadow-sm border border-gray-100
 `;
 
 const ColumnTitle = tw.h2`

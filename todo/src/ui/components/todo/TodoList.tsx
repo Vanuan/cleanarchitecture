@@ -1,5 +1,3 @@
-import tw from "tailwind-styled-components";
-
 import { Todo } from "../../../domain/entities/todo";
 import { useTodos, useUpdateTodo } from "../../hooks/useTodos";
 import { EntityView, ViewConfig } from "../organisms/EntityView";
@@ -11,10 +9,7 @@ import TodoBoardView from "./views/TodoBoardView";
 import TodoCalendarView from "./views/TodoCalendarView";
 import TodoGalleryView from "./views/TodoGalleryView";
 import TodoListView from "./views/TodoListView";
-
-const LoadingText = tw.div`
-    text-center text-gray-500 py-8
-`;
+import { LoadingState, Spinner } from "./styles";
 
 const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
   id: todo.id,
@@ -34,7 +29,11 @@ export function TodoList() {
   };
 
   if (isLoading) {
-    return <LoadingText>Loading...</LoadingText>;
+    return (
+      <LoadingState>
+        <Spinner />
+      </LoadingState>
+    );
   }
 
   const todoViewModels = (todos || []).map(mapTodoToViewModel);
