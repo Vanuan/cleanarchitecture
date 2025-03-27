@@ -14,7 +14,7 @@ export class InMemoryRepository<T extends { id: string }>
   }
 
   async create(data: Omit<T, "id" | "createdAt" | "updatedAt">): Promise<T> {
-    const item = {
+    const item: T = {
       ...data,
       id: crypto.randomUUID(),
       createdAt: new Date(),
@@ -28,7 +28,11 @@ export class InMemoryRepository<T extends { id: string }>
     const index = this.items.findIndex((item) => item.id === id);
     if (index === -1) throw new Error("Item not found");
 
-    this.items[index] = { ...this.items[index], ...updates, updatedAt: new Date() };
+    this.items[index] = {
+      ...this.items[index],
+      ...updates,
+      updatedAt: new Date(),
+    };
     return this.items[index];
   }
 

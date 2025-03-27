@@ -1,5 +1,4 @@
 import { useUpdateTodo, useDeleteTodo } from "../../hooks/useTodos";
-import tw from "tailwind-styled-components";
 import { TodoViewModel } from "../../viewmodels/TodoViewModel";
 import {
   TodoCard,
@@ -18,6 +17,7 @@ import {
   TodoTagIcon,
   DeleteIcon,
 } from "./icons";
+import { format } from "date-fns";
 
 interface Props {
   viewModel: TodoViewModel;
@@ -38,6 +38,18 @@ export function TodoItem({ viewModel, viewType }: Props) {
   const handleDelete = () => {
     deleteTodo(viewModel.id);
   };
+
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return null;
+    try {
+      const date = new Date(dateString);
+      return format(date, "MMM dd, yyyy");
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return null;
+    }
+  };
+
   if (viewType === "table") {
     return (
       <>
@@ -84,6 +96,9 @@ export function TodoItem({ viewModel, viewType }: Props) {
             {viewModel.tags.map((tag) => (
               <TodoTag key={tag}>{tag}</TodoTag>
             ))}
+            {viewModel.dueDate && (
+              <TodoTag>Due: {formatDate(viewModel.dueDate)}</TodoTag>
+            )}
           </TagsContainer>
         </TodoContentArea>
 

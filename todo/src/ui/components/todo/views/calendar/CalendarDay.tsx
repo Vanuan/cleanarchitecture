@@ -1,4 +1,6 @@
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
+import { format } from "date-fns";
+import React from "react";
 
 const CalendarDay: React.FC<{
   day: {
@@ -10,6 +12,16 @@ const CalendarDay: React.FC<{
   todos: TodoViewModel[];
   renderItem: (todo: TodoViewModel, viewType: string) => React.ReactNode;
 }> = ({ day, todos, renderItem }) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return null;
+    try {
+      const date = new Date(dateString);
+      return format(date, "MMM dd, yyyy");
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return null;
+    }
+  };
   return (
     <div
       className={`
@@ -31,7 +43,18 @@ const CalendarDay: React.FC<{
       </div>
 
       <div className="mt-1 space-y-1 max-h-24 overflow-y-auto">
-        {todos.map((todo) => renderItem(todo, "calendar"))}
+        {todos.map((todo) => {
+          return (
+            <React.Fragment key={todo.id}>
+              {todo.dueDate && (
+                <div className="text-xs text-gray-500">
+                  Due: {formatDate(todo.dueDate)}
+                </div>
+              )}
+              {renderItem(todo, "calendar")}
+            </React.Fragment>
+          );
+        })}
       </div>
     </div>
   );

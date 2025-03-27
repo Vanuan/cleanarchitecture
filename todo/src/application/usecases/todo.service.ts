@@ -14,7 +14,9 @@ export class TodoService implements TodoUseCase {
   }
 
   async create(
-    data: Omit<Todo, "id" | "createdAt" | "updatedAt" | "tags">,
+    data: Omit<Todo, "id" | "createdAt" | "updatedAt" | "tags" | "dueDate"> & {
+      dueDate?: Date;
+    },
   ): Promise<Todo> {
     const title = data.title;
     const matches = title.match(/^\[(.*?)\]/);

@@ -6,7 +6,17 @@ const TODO_STORAGE_KEY = "todos";
 export class LocalStorageTodoRepository implements TodoRepository {
   async findAll(): Promise<Todo[]> {
     const todosString = localStorage.getItem(TODO_STORAGE_KEY);
-    return todosString ? JSON.parse(todosString) : [];
+    if (!todosString) {
+      return [];
+    }
+
+    const todos = JSON.parse(todosString) as Todo[];
+    return todos.map((todo) => ({
+      ...todo,
+      createdAt: new Date(todo.createdAt),
+      updatedAt: new Date(todo.updatedAt),
+      dueDate: todo.dueDate ? new Date(todo.dueDate) : undefined,
+    }));
   }
 
   async findById(id: string): Promise<Todo | undefined> {
@@ -25,7 +35,10 @@ export class LocalStorageTodoRepository implements TodoRepository {
       updatedAt: new Date(),
     };
     todos.push(newTodo);
-    localStorage.setItem(TODO_STORAGE_KEY, JSON.stringify(todos));
+    localStorage.setItem(
+      TODO_STORAGE_KEY,
+      JSON.stringify(todos, this.dateSerializer),
+    );
     return newTodo;
   }
 
@@ -37,13 +50,26 @@ export class LocalStorageTodoRepository implements TodoRepository {
     }
     const updatedTodo = { ...todos[index], ...updates, updatedAt: new Date() };
     todos[index] = updatedTodo;
-    localStorage.setItem(TODO_STORAGE_KEY, JSON.stringify(todos));
+    localStorage.setItem(
+      TODO_STORAGE_KEY,
+      JSON.stringify(todos, this.dateSerializer),
+    );
     return updatedTodo;
   }
 
   async delete(id: string): Promise<void> {
     let todos = await this.findAll();
     todos = todos.filter((todo) => todo.id !== id);
-    localStorage.setItem(TODO_STORAGE_KEY, JSON.stringify(todos));
+    localStorage.setItem(
+      TODO_STORAGE_KEY,
+      JSON.stringify(todos, this.dateSerializer),
+    );
+  }
+
+  private dateSerializer(key: string, value: any): any {
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+    return value;
   }
 }

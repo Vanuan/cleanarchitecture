@@ -18,6 +18,7 @@ interface TodoFormProps {
 export function TodoForm({ onClose }: TodoFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState<string | undefined>(undefined);
 
   const { mutate: createTodo } = useCreateTodo();
 
@@ -25,9 +26,14 @@ export function TodoForm({ onClose }: TodoFormProps) {
     e.preventDefault();
     if (!title.trim()) return;
 
-    await createTodo({ title, completed: false });
+    createTodo({
+      title,
+      completed: false,
+      dueDate: dueDate ? new Date(dueDate) : undefined,
+    });
     setTitle("");
-    onClose(); // close the modal
+    setDueDate(undefined);
+    onClose();
   };
 
   return (
@@ -58,7 +64,16 @@ export function TodoForm({ onClose }: TodoFormProps) {
             placeholder="Add a description (optional)"
           />
         </div>
-
+        <div>
+          <InputField
+            type="date"
+            value={dueDate}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setDueDate(e.target.value)
+            }
+            placeholder="Due Date (optional)"
+          />
+        </div>
         <div className="flex justify-end">
           <SubmitButton type="submit" $disabled={!title.trim()}>
             <SubmitIcon />

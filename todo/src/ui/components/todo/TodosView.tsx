@@ -17,6 +17,7 @@ const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
   completed: todo.completed,
   tags: todo.tags,
   displayStatus: todo.completed ? "Done" : "Todo",
+  dueDate: todo.dueDate && todo.dueDate.toISOString(),
 });
 
 export function TodosView() {
@@ -74,7 +75,7 @@ export function TodosView() {
       label: "Calendar",
       component: TodoCalendarView,
       config: {
-        dateField: 'dueDate',  // Field to use for calendar grouping
+        dateField: "dueDate", // Field to use for calendar grouping
       },
       getItemId: (item) => item.id,
       renderItem: renderTodoItem,
