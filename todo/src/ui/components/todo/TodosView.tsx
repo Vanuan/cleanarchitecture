@@ -19,7 +19,7 @@ const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
   displayStatus: todo.completed ? "Done" : "Todo",
 });
 
-export function TodoList() {
+export function TodosView() {
   const { data: todos, isLoading } = useTodos();
   const { mutate: updateTodo } = useUpdateTodo();
 
