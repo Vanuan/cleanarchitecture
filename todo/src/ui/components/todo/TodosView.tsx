@@ -73,7 +73,9 @@ export function TodosView() {
       id: "calendar",
       label: "Calendar",
       component: TodoCalendarView,
-      config: {},
+      config: {
+        dateField: 'dueDate',  // Field to use for calendar grouping
+      },
       getItemId: (item) => item.id,
       renderItem: renderTodoItem,
     },

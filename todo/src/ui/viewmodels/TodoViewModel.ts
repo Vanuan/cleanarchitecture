@@ -4,4 +4,5 @@ export interface TodoViewModel {
   completed: boolean;
   tags: string[];
   displayStatus: string; // "Done" or "Todo"
+  dueDate?: string;
 }
