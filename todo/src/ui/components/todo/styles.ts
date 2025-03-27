@@ -72,6 +72,9 @@ export const TodoTag = tw.span`
 export const TodoDeleteButton = tw.button`
   text-gray-400 hover:text-red-500 transition-colors
 `;
+export const TodoEditButton = tw.button`
+  text-gray-400 hover:text-blue-500 transition-colors
+`;
 
 // Control Components
 export const ViewModeButton = tw.button<{ $active: boolean }>`
@@ -94,15 +97,19 @@ export const ModalOverlay = tw.div`
 `;
 
 export const ModalContent = tw.form`
-  bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative
+  bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative flex flex-col
+`;
+
+export const TitleBar = tw.div`
+  flex items-center justify-between mb-4
 `;
 
 export const CloseButton = tw.button`
-  absolute top-4 right-4 text-gray-400 hover:text-gray-600
+  text-gray-400 hover:text-gray-600
 `;
 
 export const ModalTitle = tw.h2`
-  text-xl font-semibold mb-4
+  text-xl font-semibold
 `;
 
 export const FormFieldContainer = tw.div`

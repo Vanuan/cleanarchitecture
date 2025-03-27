@@ -5,6 +5,7 @@ import {
   Trash2 as TrashIcon,
   CheckCircle2 as CheckIcon,
   Circle as CircleIcon,
+  Edit as EditLucideIcon,
 } from "lucide-react";
 import tw from "tailwind-styled-components";
 import { ComponentProps } from "react";
@@ -72,5 +73,11 @@ export const TodoTagIcon = (props: ComponentProps<typeof TagIcon>) => (
 export const DeleteIcon = (props: ComponentProps<typeof TrashIcon>) => (
   <IconWrapper $size="md">
     <TrashIcon className="text-gray-400 hover:text-red-500" {...props} />
+  </IconWrapper>
+);
+
+export const EditIcon = (props: ComponentProps<typeof EditLucideIcon>) => (
+  <IconWrapper $size="md">
+    <EditLucideIcon className="text-gray-400 hover:text-blue-500" {...props} />
   </IconWrapper>
 );

@@ -32,8 +32,26 @@ export class TodoService implements TodoUseCase {
     });
   }
   async update(id: string, updates: Partial<Todo>): Promise<Todo> {
+    const currentTodo = await this.todoRepository.findById(id);
+    if (!currentTodo) {
+      throw new Error(`Todo with id ${id} not found`);
+    }
+    let updatedTags = currentTodo.tags;
+    let updatedTitle =
+      updates.title !== undefined ? updates.title : currentTodo.title;
+    if (updates.title !== undefined) {
+      // If title is being updated, extract tags from the title
+      const matches = updates.title.match(/^\[(.*?)\]/);
+      updatedTags = matches ? [matches[1]] : updatedTags;
+      updatedTitle = matches
+        ? updates.title.replace(/^\[(.*?)\]\s*/, "")
+        : updates.title;
+    }
+
     return this.todoRepository.update(id, {
       ...updates,
+      title: updatedTitle,
+      tags: updatedTags,
       updatedAt: new Date(),
     });
   }

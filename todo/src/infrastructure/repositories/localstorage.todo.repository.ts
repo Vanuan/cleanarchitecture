@@ -3,11 +3,36 @@ import { TodoRepository } from "../../domain/repository/todo.repository";
 
 const TODO_STORAGE_KEY = "todos";
 
+const mockTodos: Todo[] = [
+  {
+    id: crypto.randomUUID(),
+    title: "Grocery Shopping",
+    tags: ["errands"],
+    completed: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    dueDate: new Date(new Date().setDate(new Date().getDate() + 3)), // Due in 3 days
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "[Project] Meeting with team",
+    tags: ["work", "meeting"],
+    completed: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+
 export class LocalStorageTodoRepository implements TodoRepository {
   async findAll(): Promise<Todo[]> {
     const todosString = localStorage.getItem(TODO_STORAGE_KEY);
     if (!todosString) {
-      return [];
+      //return [];
+      localStorage.setItem(
+        TODO_STORAGE_KEY,
+        JSON.stringify(mockTodos, this.dateSerializer),
+      );
+      return mockTodos;
     }
 
     const todos = JSON.parse(todosString) as Todo[];

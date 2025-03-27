@@ -7,6 +7,7 @@ import {
   TodoStatusBadge,
   TodoTag,
   TodoDeleteButton,
+  TodoEditButton,
   TodoItemLayout,
   TodoContentArea,
   TagsContainer,
@@ -16,15 +17,17 @@ import {
   TodoCircleIcon,
   TodoTagIcon,
   DeleteIcon,
+  EditIcon,
 } from "./icons";
 import { format } from "date-fns";
 
 interface Props {
   viewModel: TodoViewModel;
-  viewType: "list" | "board" | "table";
+  viewType: "list" | "board" | "table" | "calendar" | "gallery";
+  onEdit: (todo: TodoViewModel) => void;
 }
 
-export function TodoItem({ viewModel, viewType }: Props) {
+export function TodoItem({ viewModel, viewType, onEdit }: Props) {
   const { mutate: updateTodo } = useUpdateTodo();
   const { mutate: deleteTodo } = useDeleteTodo();
 
@@ -49,6 +52,9 @@ export function TodoItem({ viewModel, viewType }: Props) {
       return null;
     }
   };
+  const handleEdit = () => {
+    onEdit(viewModel);
+  };
 
   if (viewType === "table") {
     return (
@@ -66,6 +72,9 @@ export function TodoItem({ viewModel, viewType }: Props) {
         <TodoDeleteButton onClick={handleDelete}>
           <DeleteIcon />
         </TodoDeleteButton>
+        <TodoEditButton onClick={handleEdit}>
+          <EditIcon />
+        </TodoEditButton>
       </>
     );
   }
@@ -105,6 +114,9 @@ export function TodoItem({ viewModel, viewType }: Props) {
         <TodoDeleteButton onClick={handleDelete}>
           <DeleteIcon />
         </TodoDeleteButton>
+        <TodoEditButton onClick={handleEdit}>
+          <EditIcon />
+        </TodoEditButton>
       </TodoItemLayout>
     </TodoCard>
   );

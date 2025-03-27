@@ -10,6 +10,7 @@ import TodoCalendarView from "./views/TodoCalendarView";
 import TodoGalleryView from "./views/TodoGalleryView";
 import TodoListView from "./views/TodoListView";
 import { LoadingState, Spinner } from "./styles";
+import { useState } from "react";
 
 const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
   id: todo.id,
@@ -23,10 +24,36 @@ const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
 export function TodosView() {
   const { data: todos, isLoading } = useTodos();
   const { mutate: updateTodo } = useUpdateTodo();
+  const [editingTodo, setEditingTodo] = useState<TodoViewModel | null>(null);
 
   const handleTodoUpdate = (id: string, columnId: string) => {
     const completed = columnId === "completed";
     updateTodo({ id: id, updates: { completed: completed } });
+  };
+
+  const handleEditTodo = (todo: TodoViewModel) => {
+    setEditingTodo(todo);
+  };
+
+  const handleCloseForm = () => {
+    setEditingTodo(null);
+  };
+
+  const handleUpdateTodoSubmit = (
+    updatedTodo: Omit<TodoViewModel, "id" | "displayStatus">,
+  ) => {
+    updateTodo({
+      id: editingTodo!.id,
+      updates: {
+        title: updatedTodo.title,
+        completed: updatedTodo.completed,
+        dueDate: updatedTodo.dueDate
+          ? new Date(updatedTodo.dueDate)
+          : undefined,
+        tags: updatedTodo.tags,
+      },
+    });
+    setEditingTodo(null);
   };
 
   if (isLoading) {
@@ -40,8 +67,16 @@ export function TodosView() {
   const todoViewModels = (todos || []).map(mapTodoToViewModel);
 
   // how to render a Todo
-  const renderTodoItem = (viewModel: TodoViewModel, viewType: string) => (
-    <TodoItem key={viewModel.id} viewModel={viewModel} viewType={viewType} />
+  const renderTodoItem = (
+    viewModel: TodoViewModel,
+    viewType: "list" | "board" | "table" | "calendar" | "gallery",
+  ) => (
+    <TodoItem
+      key={viewModel.id}
+      viewModel={viewModel}
+      viewType={viewType}
+      onEdit={handleEditTodo}
+    />
   );
 
   const defaultViewConfigs: ViewConfig<TodoViewModel, any>[] = [
@@ -75,7 +110,7 @@ export function TodosView() {
       label: "Calendar",
       component: TodoCalendarView,
       config: {
-        dateField: "dueDate", // Field to use for calendar grouping
+        dateField: "dueDate",
       },
       getItemId: (item) => item.id,
       renderItem: renderTodoItem,
@@ -97,7 +132,11 @@ export function TodosView() {
       defaultView="calendar"
       getItemId={(viewModel) => viewModel.id}
       EntityForm={TodoForm}
-      formProps={{}}
+      formProps={{
+        initialValues: editingTodo,
+        onSubmit: editingTodo ? handleUpdateTodoSubmit : undefined,
+        onClose: handleCloseForm,
+      }}
       addButtonText="Add Todo"
       renderItem={renderTodoItem}
     />

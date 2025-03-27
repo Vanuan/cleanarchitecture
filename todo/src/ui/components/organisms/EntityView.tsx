@@ -18,7 +18,7 @@ export interface ViewConfig<T extends Entity, P = {}> {
     config: P;
     getItemId: (item: T) => string;
     onItemUpdate?: (id: string, newValue: any) => void;
-    renderItem: (item: T) => React.ReactNode; // Make renderItem required
+    renderItem: (item: T) => React.ReactNode;
   }>;
   config?: P;
 }
@@ -33,7 +33,7 @@ interface EntityViewProps<T extends Entity, P = {}> {
   formProps: any;
   addButtonText?: string;
   isLoading?: boolean;
-  renderItem: (item: T, viewType: string) => React.ReactNode; // Pass the renderItem down
+  renderItem: (item: T, viewType: string) => React.ReactNode;
 }
 
 const Container = tw.div`
@@ -59,13 +59,7 @@ const ModalBackdrop = tw.div`
   fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center p-4 z-50
 `;
 
-const ModalContainer = tw.div`
-  bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative
-`;
-
-const CloseButton = tw.button`
-  absolute top-4 right-4 text-gray-400 hover:text-gray-600
-`;
+const ModalContainer = tw.div`p-6 w-full max-w-lg relative`;
 
 export function EntityView<T extends Entity, P = {}>({
   items,
@@ -77,10 +71,10 @@ export function EntityView<T extends Entity, P = {}>({
   formProps,
   addButtonText = "Add Entity",
   isLoading = false,
-  renderItem, // Get renderItem from here
+  renderItem,
 }: EntityViewProps<T, P>) {
   const [currentView, setCurrentView] = useState(defaultView);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(!!formProps.initialValues);
   const modalRef = useRef<HTMLDivElement>(null);
 
   const toggleForm = useCallback(() => setIsFormOpen((prev) => !prev), []);
@@ -101,6 +95,10 @@ export function EntityView<T extends Entity, P = {}>({
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isFormOpen, toggleForm]);
+
+  useEffect(() => {
+    setIsFormOpen(!!formProps.initialValues);
+  }, [formProps.initialValues]);
 
   const mergedViewConfigs = useMemo(() => {
     const customConfigMap = new Map(
@@ -140,7 +138,7 @@ export function EntityView<T extends Entity, P = {}>({
         config={config}
         getItemId={getItemId}
         onItemUpdate={onItemUpdate}
-        renderItem={renderItem} // pass renderItem down to the view component
+        renderItem={renderItem}
       />
     );
   };
@@ -165,9 +163,6 @@ export function EntityView<T extends Entity, P = {}>({
         createPortal(
           <ModalBackdrop onClick={handleBackdropClick}>
             <ModalContainer ref={modalRef}>
-              <CloseButton onClick={toggleForm} aria-label="Close modal">
-                ×
-              </CloseButton>
               <EntityForm {...formProps} onClose={toggleForm} />
             </ModalContainer>
           </ModalBackdrop>,
