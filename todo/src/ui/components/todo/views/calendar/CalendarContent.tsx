@@ -5,6 +5,7 @@ import WeekView from "./WeekView";
 import DayView from "./DayView";
 import MonthView from "./MonthView";
 import AgendaView from "./AgendaView";
+import WeekScrollView from "./WeekScrollView";
 
 interface CalendarContentProps {
   items: TodoViewModel[];
@@ -50,6 +51,13 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
     <>
       {view === "month" && <MonthView todos={items} renderItem={renderItem} />}
       {view === "week" && <WeekView todos={items} renderItem={renderItem} />}
+      {view === "week-scroll" && (
+        <WeekScrollView
+          todos={items}
+          renderItem={renderItem}
+          onAddItem={onAddItem}
+        />
+      )}
       {view === "day" && <DayView todos={items} renderItem={renderItem} />}
       {view === "agenda" && (
         <AgendaView

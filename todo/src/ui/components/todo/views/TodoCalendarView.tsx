@@ -18,7 +18,7 @@ interface CalendarConfig {
   firstDayOfWeek: 0 | 1;
   timeFormat: "12h" | "24h";
   dateField: keyof TodoViewModel;
-  defaultView?: "day" | "week" | "month" | "agenda";
+  defaultView?: "month" | "day" | "week" | "week-scroll" | "agenda";
 }
 
 // Main Calendar Component
@@ -35,7 +35,7 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
   // Set default view based on screen size
   const defaultConfig: Partial<CalendarConfig> = {
     dateField: "dueDate",
-    defaultView: isMobile ? "day" : "week",
+    defaultView: isMobile ? "agenda" : "week-scroll",
   };
 
   return (

@@ -80,9 +80,8 @@ export function TodosView() {
   );
 
   const handleAddItem = (date: Date) => {
-    // Create a new todo with the selected date as the due date
     setEditingTodo({
-      id: "", // This will be ignored for new items
+      id: "",
       title: "",
       completed: false,
       tags: [],

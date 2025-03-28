@@ -27,7 +27,7 @@ const MonthView: React.FC<{
         <div className="mt-1 space-y-1 max-h-24 overflow-y-auto">
           {todos.map((todo, index) => (
             <React.Fragment key={index}>
-              {renderItem(todo, "calendar")}
+              {renderItem(todo, "month")}
             </React.Fragment>
           ))}
         </div>

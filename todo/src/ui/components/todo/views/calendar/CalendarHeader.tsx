@@ -14,6 +14,7 @@ const CalendarHeader: React.FC = () => {
       case "day":
         return format(currentDate, "EEEE, MMMM d, yyyy");
       case "week":
+      case "week-scroll":
         return `Week of ${format(currentDate, "MMMM d, yyyy")}`;
       case "month":
       default:
@@ -38,6 +39,7 @@ const CalendarHeader: React.FC = () => {
             >
               <option value="month">Month</option>
               <option value="week">Week</option>
+              <option value="week-scroll">Timeline</option>
               <option value="day">Day</option>
               <option value="agenda">Agenda</option>
             </select>
@@ -63,7 +65,17 @@ const CalendarHeader: React.FC = () => {
                 }`}
               >
                 Week
-              </button>{" "}
+              </button>
+              <button
+                onClick={() => setView("week-scroll")}
+                className={`px-4 py-2 text-sm font-medium ${
+                  view === "week-scroll"
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-50 border-t border-b border-gray-300"
+                }`}
+              >
+                Timeline
+              </button>
               <button
                 onClick={() => setView("day")}
                 className={`px-4 py-2 text-sm font-medium ${
