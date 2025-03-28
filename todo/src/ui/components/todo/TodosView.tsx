@@ -79,6 +79,18 @@ export function TodosView() {
     />
   );
 
+  const handleAddItem = (date: Date) => {
+    // Create a new todo with the selected date as the due date
+    setEditingTodo({
+      id: "", // This will be ignored for new items
+      title: "",
+      completed: false,
+      tags: [],
+      displayStatus: "Todo",
+      dueDate: date.toISOString(),
+    });
+  };
+
   const defaultViewConfigs: ViewConfig<TodoViewModel, any>[] = [
     {
       id: "list",
@@ -114,6 +126,7 @@ export function TodosView() {
       },
       getItemId: (item) => item.id,
       renderItem: renderTodoItem,
+      onAddItem: handleAddItem,
     },
     {
       id: "gallery",

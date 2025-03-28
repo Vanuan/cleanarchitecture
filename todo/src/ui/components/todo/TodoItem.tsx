@@ -23,7 +23,7 @@ import { format } from "date-fns";
 
 interface Props {
   viewModel: TodoViewModel;
-  viewType: "list" | "board" | "table" | "calendar" | "gallery";
+  viewType: "list" | "board" | "table" | "calendar" | "gallery" | "agenda";
   onEdit: (todo: TodoViewModel) => void;
 }
 
@@ -76,6 +76,52 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
           <EditIcon />
         </TodoEditButton>
       </>
+    );
+  }
+
+  if (viewType === "agenda") {
+    return (
+      <div className="p-3 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow">
+        <div className="flex items-start">
+          <TodoToggleButton
+            $completed={viewModel.completed}
+            onClick={handleCompleteToggle}
+          >
+            {viewModel.completed ? (
+              <TodoCheckIcon $completed={viewModel.completed} />
+            ) : (
+              <TodoCircleIcon $completed={viewModel.completed} />
+            )}
+          </TodoToggleButton>
+
+          <TodoContentArea>
+            <TodoTitle $completed={viewModel.completed}>
+              {viewModel.title}
+            </TodoTitle>
+            <TagsContainer>
+              <TodoTagIcon />
+              <TodoStatusBadge $completed={viewModel.completed}>
+                {viewModel.displayStatus}
+              </TodoStatusBadge>
+              {viewModel.tags.map((tag) => (
+                <TodoTag key={tag}>{tag}</TodoTag>
+              ))}
+              {viewModel.dueDate && (
+                <TodoTag>Due: {formatDate(viewModel.dueDate)}</TodoTag>
+              )}
+            </TagsContainer>
+          </TodoContentArea>
+
+          <div className="flex">
+            <TodoEditButton onClick={handleEdit}>
+              <EditIcon />
+            </TodoEditButton>
+            <TodoDeleteButton onClick={handleDelete}>
+              <DeleteIcon />
+            </TodoDeleteButton>
+          </div>
+        </div>
+      </div>
     );
   }
 

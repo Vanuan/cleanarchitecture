@@ -14,59 +14,32 @@ import { useContext } from "react";
 import { CalendarContext } from "./calendar-context";
 
 // Hook to get calendar navigation functions
-export function useCalendarNavigation() {
-  const { currentDate, setCurrentDate, view, setView } = useCalendarContext();
-
-  const today = () => setCurrentDate(new Date());
-
-  const next = () => {
-    if (view === "month") {
-      setCurrentDate(addMonths(currentDate, 1));
-    } else if (view === "week") {
-      // Move forward a week
-      const newDate = new Date(currentDate);
-      newDate.setDate(newDate.getDate() + 7);
-      setCurrentDate(newDate);
-    } else {
-      // Move forward a day
-      const newDate = new Date(currentDate);
-      newDate.setDate(newDate.getDate() + 1);
-      setCurrentDate(newDate);
-    }
-  };
-
-  const prev = () => {
-    if (view === "month") {
-      setCurrentDate(subMonths(currentDate, 1));
-    } else if (view === "week") {
-      // Move back a week
-      const newDate = new Date(currentDate);
-      newDate.setDate(newDate.getDate() - 7);
-      setCurrentDate(newDate);
-    } else {
-      // Move back a day
-      const newDate = new Date(currentDate);
-      newDate.setDate(newDate.getDate() - 1);
-      setCurrentDate(newDate);
-    }
-  };
+export const useCalendarNavigation = () => {
+  const context = useContext(CalendarContext);
+  if (!context) {
+    throw new Error(
+      "useCalendarContext must be used within a CalendarProvider",
+    );
+  }
 
   return {
-    today,
-    next,
-    prev,
-    currentDate,
-    view,
-    setView,
-    setCurrentDate,
+    ...context,
+    goToDate: (date: Date) => {
+      context.setCurrentDate(date);
+    },
+    goToMonth: (month: number, year: number) => {
+      const newDate = new Date(context.currentDate);
+      newDate.setMonth(month);
+      newDate.setFullYear(year);
+      context.setCurrentDate(newDate);
+    },
   };
-}
+};
 
 // Hook to get month data
 export function useMonthData() {
   const { currentDate } = useCalendarContext();
 
-  // Calculate the days to display
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
