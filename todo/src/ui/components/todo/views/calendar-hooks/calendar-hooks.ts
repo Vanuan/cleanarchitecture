@@ -8,6 +8,10 @@ import {
   format,
   addMonths,
   subMonths,
+  addWeeks,
+  subWeeks,
+  addDays,
+  subDays,
 } from "date-fns";
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 import { useContext } from "react";
@@ -22,15 +26,59 @@ export const useCalendarNavigation = () => {
     );
   }
 
+  // Navigate to today
+  const today = () => {
+    context.setCurrentDate(new Date());
+  };
+
+  // Navigate to next period based on current view
+  const next = () => {
+    const { currentDate, view } = context;
+    
+    switch (view) {
+      case "month":
+        context.setCurrentDate(addMonths(currentDate, 1));
+        break;
+      case "week":
+        context.setCurrentDate(addWeeks(currentDate, 1));
+        break;
+      case "day":
+        context.setCurrentDate(addDays(currentDate, 1));
+        break;
+      default:
+        context.setCurrentDate(addDays(currentDate, 1));
+    }
+  };
+
+  // Navigate to previous period based on current view
+  const prev = () => {
+    const { currentDate, view } = context;
+    
+    switch (view) {
+      case "month":
+        context.setCurrentDate(subMonths(currentDate, 1));
+        break;
+      case "week":
+        context.setCurrentDate(subWeeks(currentDate, 1));
+        break;
+      case "day":
+        context.setCurrentDate(subDays(currentDate, 1));
+        break;
+      default:
+        context.setCurrentDate(subDays(currentDate, 1));
+    }
+  };
+
   return {
     ...context,
+    today,
+    next,
+    prev,
     goToDate: (date: Date) => {
       context.setCurrentDate(date);
     },
     goToMonth: (month: number, year: number) => {
-      const newDate = new Date(context.currentDate);
-      newDate.setMonth(month);
-      newDate.setFullYear(year);
+      const newDate = new Date(year, month, 1);
       context.setCurrentDate(newDate);
     },
   };

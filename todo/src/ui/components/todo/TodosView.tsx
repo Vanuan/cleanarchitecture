@@ -81,7 +81,13 @@ export function TodosView() {
     />
   );
 
-  const handleAddItem = ({ dueDate, isAllDay }: { dueDate: Date; isAllDay?: boolean }) => {
+  const handleAddItem = ({
+    dueDate,
+    isAllDay,
+  }: {
+    dueDate: Date;
+    isAllDay?: boolean;
+  }) => {
     setEditingTodo({
       id: "",
       title: "",
@@ -102,14 +108,14 @@ export function TodosView() {
       getItemId: (viewModel) => viewModel.id,
       renderItem: renderTodoItem,
     },
-    {
-      id: "table",
-      label: "Table",
-      component: TodoTableView,
-      config: {},
-      getItemId: (item) => item.id,
-      renderItem: renderTodoItem,
-    },
+    // {
+    //   id: "table",
+    //   label: "Table",
+    //   component: TodoTableView,
+    //   config: {},
+    //   getItemId: (item) => item.id,
+    //   renderItem: renderTodoItem,
+    // },
     {
       id: "board",
       label: "Board",
