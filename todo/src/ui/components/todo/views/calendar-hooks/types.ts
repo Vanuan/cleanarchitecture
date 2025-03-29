@@ -1,6 +1,6 @@
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 
-export type ViewType = "month" | "week" | "week-scroll" | "day" | "agenda";
+export type ViewType = "month" | "week" | "day";
 
 export interface CalendarConfig {
   firstDayOfWeek: 0 | 1;

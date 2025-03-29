@@ -7,7 +7,7 @@ export const CalendarProvider: React.FC<{
   initialConfig?: Partial<CalendarConfig>;
 }> = ({ children, initialConfig = {} }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState<"month" | "week" | "day">("month");
+  const [view, setView] = useState<"month" | "week" | "week-scroll" | "agenda">("month");
   const [config, setConfig] = useState<CalendarConfig>({
     firstDayOfWeek: 1,
     timeFormat: "12h",

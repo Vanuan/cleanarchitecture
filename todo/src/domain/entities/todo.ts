@@ -6,4 +6,5 @@ export interface Todo {
   createdAt: Date;
   updatedAt: Date;
   dueDate?: Date;
+  isAllDay?: boolean;
 }

@@ -11,6 +11,8 @@ import {
   TitleBar,
 } from "./styles";
 import { CloseIcon, SubmitIcon } from "./icons";
+import { Switch } from '@headlessui/react';
+import { format } from 'date-fns';
 
 interface TodoFormProps {
   onClose: () => void;
@@ -19,6 +21,7 @@ interface TodoFormProps {
     title: string;
     dueDate?: string;
     completed?: boolean;
+    isAllDay?: boolean;
   };
 }
 
@@ -27,6 +30,7 @@ export function TodoForm({ onClose, initialValues, onSubmit }: TodoFormProps) {
   const [completed, setCompleted] = useState(initialValues?.completed || false);
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<string | undefined>(undefined);
+  const [isAllDay, setIsAllDay] = useState(initialValues?.isAllDay || false);
 
   const { mutate: createTodo } = useCreateTodo();
 
@@ -35,6 +39,7 @@ export function TodoForm({ onClose, initialValues, onSubmit }: TodoFormProps) {
       setTitle(initialValues.title || "");
       setDueDate(initialValues.dueDate || undefined);
       setCompleted(initialValues.completed || false);
+      setIsAllDay(initialValues.isAllDay || false);
     }
   }, [initialValues]);
 
@@ -44,7 +49,8 @@ export function TodoForm({ onClose, initialValues, onSubmit }: TodoFormProps) {
     const todoData = {
       title,
       completed,
-      dueDate: dueDate ? new Date(dueDate) : undefined,
+      dueDate,
+      isAllDay: dueDate ? isAllDay : undefined,
     };
     if (onSubmit) {
       onSubmit(todoData);
@@ -55,6 +61,19 @@ export function TodoForm({ onClose, initialValues, onSubmit }: TodoFormProps) {
     setTitle("");
     setDueDate(undefined);
     onClose();
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDueDate(e.target.value);
+  };
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!dueDate) return;
+    
+    const [hours, minutes] = e.target.value.split(':').map(Number);
+    const newDate = new Date(dueDate);
+    newDate.setHours(hours, minutes);
+    setDueDate(newDate);
   };
 
   return (
@@ -90,15 +109,46 @@ export function TodoForm({ onClose, initialValues, onSubmit }: TodoFormProps) {
             placeholder="Add a description (optional)"
           />
         </div>
-        <div>
-          <InputField
-            type="date"
-            value={dueDate}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setDueDate(e.target.value)
-            }
-            placeholder="Due Date (optional)"
-          />
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-700">Due Date</label>
+          <div className="mt-1">
+            <input
+              type="date"
+              value={dueDate ? format(dueDate, 'yyyy-MM-dd') : ''}
+              onChange={handleDateChange}
+              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+            />
+          </div>
+          
+          {dueDate && (
+            <div className="mt-2 flex items-center">
+              <Switch
+                checked={isAllDay}
+                onChange={setIsAllDay}
+                className={`${
+                  isAllDay ? 'bg-blue-600' : 'bg-gray-200'
+                } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mr-3`}
+              >
+                <span
+                  className={`${
+                    isAllDay ? 'translate-x-6' : 'translate-x-1'
+                  } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                />
+              </Switch>
+              <span className="text-sm text-gray-700">All day</span>
+              
+              {!isAllDay && (
+                <div className="ml-4">
+                  <input
+                    type="time"
+                    value={dueDate ? format(dueDate, 'HH:mm') : ''}
+                    onChange={handleTimeChange}
+                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div className="flex justify-end">
           <SubmitButton type="submit" $disabled={!title.trim()}>

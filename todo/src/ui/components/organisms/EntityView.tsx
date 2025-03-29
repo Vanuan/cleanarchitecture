@@ -19,6 +19,7 @@ export interface ViewConfig<T extends Entity, P = {}> {
     getItemId: (item: T) => string;
     onItemUpdate?: (id: string, newValue: any) => void;
     renderItem: (item: T) => React.ReactNode;
+    onAddItem?: (item: Partial<T>) => void;
   }>;
   config?: P;
 }
@@ -131,6 +132,7 @@ export function EntityView<T extends Entity, P = {}>({
       config,
       getItemId,
       onItemUpdate,
+      onAddItem,
     } = currentViewConfig;
     return (
       <ViewComponent
@@ -139,6 +141,7 @@ export function EntityView<T extends Entity, P = {}>({
         getItemId={getItemId}
         onItemUpdate={onItemUpdate}
         renderItem={renderItem}
+        onAddItem={onAddItem}
       />
     );
   };

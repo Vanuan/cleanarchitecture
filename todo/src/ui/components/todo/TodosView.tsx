@@ -19,6 +19,7 @@ const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
   tags: todo.tags,
   displayStatus: todo.completed ? "Done" : "Todo",
   dueDate: todo.dueDate && todo.dueDate.toISOString(),
+  isAllDay: todo.isAllDay,
 });
 
 export function TodosView() {
@@ -51,6 +52,7 @@ export function TodosView() {
           ? new Date(updatedTodo.dueDate)
           : undefined,
         tags: updatedTodo.tags,
+        isAllDay: updatedTodo.isAllDay,
       },
     });
     setEditingTodo(null);
@@ -79,14 +81,14 @@ export function TodosView() {
     />
   );
 
-  const handleAddItem = (date: Date) => {
+  const handleAddItem = ({ dueDate }: { dueDate: Date }) => {
     setEditingTodo({
       id: "",
       title: "",
       completed: false,
       tags: [],
       displayStatus: "Todo",
-      dueDate: date.toISOString(),
+      dueDate: dueDate.toISOString(),
     });
   };
 

@@ -17,19 +17,39 @@ const MonthView: React.FC<{
     todos: TodoViewModel[];
     renderItem: (todo: TodoViewModel, viewType: string) => React.ReactNode;
   }> = ({ day, todos, renderItem }) => {
+    const getTaskStats = (todos: TodoViewModel[]) => {
+      return todos.reduce(
+        (acc, todo) => {
+          if (todo.completed) {
+            acc.completed += 1;
+          }
+          acc.total += 1;
+          acc.tasks += 1;
+          return acc;
+        },
+        { tasks: 0, completed: 0, total: 0 }
+      );
+    };
+
+    const stats = getTaskStats(todos);
+
     return (
-      <div className="border border-gray-200 min-h-[100px] p-1 relative">
-        <div className="text-right">
-          <span className="text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center text-gray-700">
-            {day.dayOfMonth}
-          </span>
+      <div className="min-h-24 p-2 border border-gray-200">
+        <div className="flex justify-between items-start">
+          <span className="text-sm font-medium">{day.dayOfMonth}</span>
+          {stats.total > 0 && (
+            <div className="text-xs flex items-center">
+              <span className="text-gray-500 mr-1">{stats.completed}/{stats.total}</span>
+            </div>
+          )}
         </div>
-        <div className="mt-1 space-y-1 max-h-24 overflow-y-auto">
-          {todos.map((todo, index) => (
-            <React.Fragment key={index}>
-              {renderItem(todo, "month")}
-            </React.Fragment>
-          ))}
+        <div className="mt-2 flex flex-wrap gap-1">
+          {stats.tasks > 0 && (
+            <div className="flex items-center bg-blue-100 px-2 py-1 rounded-md">
+              <div className="w-2 h-2 bg-blue-500 rounded-full mr-1"></div>
+              <span className="text-xs text-blue-800">{stats.tasks}</span>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -38,40 +58,45 @@ const MonthView: React.FC<{
   const MemoizedCalendarDay = React.memo(CalendarDay);
 
   return (
-    <div>
-      {/* Day names header */}
-      <div className="grid grid-cols-7 text-center py-2 border-b border-gray-200 bg-gray-50">
-        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, index) => (
-          <div key={index} className="text-sm font-medium text-gray-500">
-            {day}
-          </div>
-        ))}
+    <div className="p-4">
+      <div className="flex justify-end mb-2 text-xs">
+        <div className="flex items-center mr-3">
+          <div className="w-3 h-3 bg-blue-500 rounded-full mr-1"></div>
+          <span>Tasks</span>
+        </div>
       </div>
-
-      {/* Calendar grid */}
-      <div className="bg-white">
-        {weeks.map((week, weekIndex) => (
-          <div key={weekIndex} className="grid grid-cols-7">
-            {week.map((day) => {
-              const dayTodos = todos.filter((todo) => {
-                const todoDate = new Date(todo.dueDate as string);
+      <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="grid grid-cols-7 text-center bg-gray-50">
+          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, index) => (
+            <div key={index} className="py-2 border-b border-gray-200 font-medium text-gray-600">
+              {day}
+            </div>
+          ))}
+        </div>
+        <div className="bg-white">
+          {weeks.map((week, weekIndex) => (
+            <div key={weekIndex} className="grid grid-cols-7">
+              {week.map((day) => {
+                const dayTodos = todos.filter((todo) => {
+                  const todoDate = new Date(todo.dueDate as string);
+                  return (
+                    todoDate.getDate() === day.date.getDate() &&
+                    todoDate.getMonth() === day.date.getMonth() &&
+                    todoDate.getFullYear() === day.date.getFullYear()
+                  );
+                });
                 return (
-                  todoDate.getDate() === day.date.getDate() &&
-                  todoDate.getMonth() === day.date.getMonth() &&
-                  todoDate.getFullYear() === day.date.getFullYear()
+                  <MemoizedCalendarDay
+                    key={day.date.toString()}
+                    day={day}
+                    todos={dayTodos}
+                    renderItem={renderItem}
+                  />
                 );
-              });
-              return (
-                <MemoizedCalendarDay
-                  key={day.date.toString()}
-                  day={day}
-                  todos={dayTodos}
-                  renderItem={renderItem}
-                />
-              );
-            })}
-          </div>
-        ))}
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
