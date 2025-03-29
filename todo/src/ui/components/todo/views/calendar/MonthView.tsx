@@ -1,11 +1,13 @@
 import React from "react";
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 import { useMonthData } from "../calendar-hooks";
+import { format, isSameDay } from "date-fns";
 
 const MonthView: React.FC<{
   todos: TodoViewModel[];
   renderItem: (todo: TodoViewModel, viewType: string) => React.ReactNode;
-}> = ({ todos, renderItem }) => {
+  onAddItem?: ({ dueDate, isAllDay }: { dueDate?: Date; isAllDay?: boolean }) => void;
+}> = ({ todos, renderItem, onAddItem }) => {
   const { weeks } = useMonthData();
 
   const CalendarDay: React.FC<{
@@ -16,7 +18,8 @@ const MonthView: React.FC<{
     };
     todos: TodoViewModel[];
     renderItem: (todo: TodoViewModel, viewType: string) => React.ReactNode;
-  }> = ({ day, todos, renderItem }) => {
+    onAddItem?: ({ dueDate, isAllDay }: { dueDate: Date; isAllDay?: boolean }) => void;
+  }> = ({ day, todos, renderItem, onAddItem }) => {
     const getTaskStats = (todos: TodoViewModel[]) => {
       return todos.reduce(
         (acc, todo) => {
@@ -32,11 +35,27 @@ const MonthView: React.FC<{
     };
 
     const stats = getTaskStats(todos);
+    const isToday = isSameDay(day.date, new Date());
+
+    const handleAddTask = () => {
+      if (onAddItem) {
+        // Create a date at midnight for all-day tasks by default in month view
+        const taskDate = new Date(day.date);
+        taskDate.setHours(0, 0, 0, 0);
+        onAddItem({ dueDate: taskDate, isAllDay: true });
+      }
+    };
 
     return (
-      <div className="min-h-24 p-2 border border-gray-200">
+      <div 
+        className={`min-h-24 p-2 border border-gray-200 ${isToday ? 'bg-blue-50' : ''} ${!day.isCurrentMonth ? 'bg-gray-50' : ''}`}
+        onClick={onAddItem ? handleAddTask : undefined}
+        style={{ cursor: onAddItem ? 'pointer' : 'default' }}
+      >
         <div className="flex justify-between items-start">
-          <span className="text-sm font-medium">{day.dayOfMonth}</span>
+          <span className={`text-sm font-medium ${isToday ? 'text-blue-600' : ''} ${!day.isCurrentMonth ? 'text-gray-400' : ''}`}>
+            {day.dayOfMonth}
+          </span>
           {stats.total > 0 && (
             <div className="text-xs flex items-center">
               <span className="text-gray-500 mr-1">{stats.completed}/{stats.total}</span>
@@ -64,6 +83,11 @@ const MonthView: React.FC<{
           <div className="w-3 h-3 bg-blue-500 rounded-full mr-1"></div>
           <span>Tasks</span>
         </div>
+        {onAddItem && (
+          <div className="text-xs text-gray-500">
+            Click on any day to add a task
+          </div>
+        )}
       </div>
       <div className="border border-gray-200 rounded-lg overflow-hidden">
         <div className="grid grid-cols-7 text-center bg-gray-50">
@@ -78,12 +102,17 @@ const MonthView: React.FC<{
             <div key={weekIndex} className="grid grid-cols-7">
               {week.map((day) => {
                 const dayTodos = todos.filter((todo) => {
-                  const todoDate = new Date(todo.dueDate as string);
-                  return (
-                    todoDate.getDate() === day.date.getDate() &&
-                    todoDate.getMonth() === day.date.getMonth() &&
-                    todoDate.getFullYear() === day.date.getFullYear()
-                  );
+                  if (!todo.dueDate) return false;
+                  try {
+                    const todoDate = new Date(todo.dueDate);
+                    return (
+                      todoDate.getDate() === day.date.getDate() &&
+                      todoDate.getMonth() === day.date.getMonth() &&
+                      todoDate.getFullYear() === day.date.getFullYear()
+                    );
+                  } catch (error) {
+                    return false;
+                  }
                 });
                 return (
                   <MemoizedCalendarDay
@@ -91,6 +120,7 @@ const MonthView: React.FC<{
                     day={day}
                     todos={dayTodos}
                     renderItem={renderItem}
+                    onAddItem={onAddItem}
                   />
                 );
               })}

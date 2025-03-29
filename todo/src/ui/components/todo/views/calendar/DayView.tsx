@@ -17,7 +17,7 @@ import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 interface DayViewProps {
   todos: TodoViewModel[];
   renderItem: (todo: TodoViewModel, viewType: string) => React.ReactNode;
-  onAddItem?: (date: Date) => void;
+  onAddItem?: ({ dueDate, isAllDay }: { dueDate?: Date; isAllDay?: boolean }) => void;
 }
 
 // Constants for time display
@@ -108,16 +108,24 @@ const DayView: React.FC<DayViewProps> = ({
     if (!todo.dueDate) return null;
     
     try {
-      const date = parseISO(todo.dueDate);
-      const hour = date.getHours();
-      const minutes = date.getMinutes();
+      const startDate = parseISO(todo.dueDate);
+      const startHour = startDate.getHours();
+      const startMinutes = startDate.getMinutes();
       
       // Only show tasks within our time range
-      if (hour < START_HOUR || hour > END_HOUR) return null;
+      if (startHour < START_HOUR || startHour > END_HOUR) return null;
+      
+      // Calculate duration (default to 1 hour if endDate not provided)
+      let durationMinutes = 60;
+      if (todo.endDate) {
+        const endDate = parseISO(todo.endDate);
+        durationMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60);
+      }
       
       return {
-        hour,
-        minutes,
+        hour: startHour,
+        minutes: startMinutes,
+        durationMinutes,
         todo
       };
     } catch (error) {
@@ -136,7 +144,7 @@ const DayView: React.FC<DayViewProps> = ({
       // Create a date at midnight for all-day tasks
       const allDayDate = new Date(selectedDay);
       allDayDate.setHours(0, 0, 0, 0);
-      onAddItem(allDayDate);
+      onAddItem({ dueDate: allDayDate, isAllDay: true });
     }
   };
   
@@ -144,7 +152,7 @@ const DayView: React.FC<DayViewProps> = ({
   const handleAddTimeTask = (hour: number) => {
     if (onAddItem) {
       const dateWithTime = setHours(selectedDay, hour);
-      onAddItem(dateWithTime);
+      onAddItem({ dueDate: dateWithTime, isAllDay: false });
     }
   };
     
@@ -280,13 +288,17 @@ const DayView: React.FC<DayViewProps> = ({
                     onClick={() => handleAddTimeTask(hour)}
                   >
                     {hourTodos.map(todo => {
+                      const position = getTimePosition(todo);
                       return (
                         <div 
                           key={todo.id}
-                          className="absolute inset-x-2 top-1 h-[65px] bg-blue-100 border border-blue-300 rounded-md p-2 overflow-hidden hover:bg-blue-200 transition-colors"
+                          className="absolute inset-x-2 rounded-md p-2 overflow-hidden hover:bg-blue-200 transition-colors border-l-4 border-blue-500"
+                          style={{
+                            top: `${position.minutes / 60 * 70}px`,
+                            height: `${Math.max(30, position.durationMinutes / 60 * 70)}px`,
+                          }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            // You can add an edit handler here if needed
                           }}
                         >
                           <div className="font-medium text-sm">{todo.title}</div>

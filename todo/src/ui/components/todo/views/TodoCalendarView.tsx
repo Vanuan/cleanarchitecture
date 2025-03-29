@@ -55,7 +55,7 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
         {/* Mobile floating action button for adding tasks */}
         {isMobile && onAddItem && (
           <button
-            onClick={() => onAddItem(new Date())}
+            onClick={() => onAddItem({ dueDate: new Date(), isAllDay: false })}
             className="fixed bottom-4 right-4 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center"
             aria-label="Add new task"
           >

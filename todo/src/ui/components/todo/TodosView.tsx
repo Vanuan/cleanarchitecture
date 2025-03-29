@@ -71,7 +71,7 @@ export function TodosView() {
   // how to render a Todo
   const renderTodoItem = (
     viewModel: TodoViewModel,
-    viewType: "list" | "board" | "table" | "calendar" | "gallery",
+    viewType: "list" | "board" | "table" | "gallery" | "month" | "week" | "day",
   ) => (
     <TodoItem
       key={viewModel.id}
@@ -81,7 +81,7 @@ export function TodosView() {
     />
   );
 
-  const handleAddItem = ({ dueDate }: { dueDate: Date }) => {
+  const handleAddItem = ({ dueDate, isAllDay }: { dueDate: Date; isAllDay?: boolean }) => {
     setEditingTodo({
       id: "",
       title: "",
@@ -89,6 +89,7 @@ export function TodosView() {
       tags: [],
       displayStatus: "Todo",
       dueDate: dueDate.toISOString(),
+      isAllDay: isAllDay,
     });
   };
 

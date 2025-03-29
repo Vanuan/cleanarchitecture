@@ -12,7 +12,7 @@ import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 interface WeekViewProps {
   todos: TodoViewModel[];
   renderItem: (todo: TodoViewModel, viewType: string) => React.ReactNode;
-  onAddItem?: (date: Date) => void;
+  onAddItem?: ({ dueDate, isAllDay }: { dueDate?: Date; isAllDay?: boolean }) => void;
 }
 
 const WeekView: React.FC<WeekViewProps> = ({
@@ -46,7 +46,7 @@ interface DaySectionProps {
   day: Date;
   todos: TodoViewModel[];
   renderItem: (todo: TodoViewModel, viewType: string) => React.ReactNode;
-  onAddItem?: (date: Date) => void;
+  onAddItem?: ({ dueDate, isAllDay }: { dueDate: Date; isAllDay?: boolean }) => void;
 }
 
 const DaySection: React.FC<DaySectionProps> = ({
@@ -60,7 +60,8 @@ const DaySection: React.FC<DaySectionProps> = ({
 
   const handleAddItem = () => {
     if (onAddItem) {
-      onAddItem(day);
+      // In week view, default to all-day tasks
+      onAddItem({ dueDate: day, isAllDay: true });
     }
   };
 
