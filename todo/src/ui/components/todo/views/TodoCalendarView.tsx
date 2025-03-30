@@ -5,14 +5,17 @@ import CalendarHeader from "./calendar/CalendarHeader";
 import CalendarContent from "./calendar/CalendarContent";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
 import { serializeDate, now } from "../../../../lib/utils/date";
+import { CalendarViewType } from "./calendar-hooks/types";
 
 interface ViewProps<T> {
   items: T[];
   config?: Partial<CalendarConfig>;
-  renderItem: (item: T, viewType: string) => React.ReactNode;
+  renderItem: (item: T) => React.ReactNode;
   isLoading?: boolean;
   error?: Error | null;
   onAddItem?: (item: Partial<T>) => void;
+  currentView: CalendarViewType;
+  setCurrentView: (view: CalendarViewType) => void;
 }
 
 interface CalendarConfig {
@@ -30,17 +33,28 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
   isLoading,
   error,
   onAddItem,
+  currentView,
+  setCurrentView,
 }) => {
   const isMobile = useMediaQuery("(max-width: 640px)");
 
   // Set default view based on screen size
   const defaultConfig: Partial<CalendarConfig> = {
     dateField: "dueDate",
-    defaultView: isMobile ? "agenda" : "week-scroll",
+  };
+
+  const handleAddFloating = () => {
+    if (onAddItem) {
+      onAddItem({ dueDate: serializeDate(now()), isAllDay: false });
+    }
   };
 
   return (
-    <CalendarProvider initialConfig={{ ...defaultConfig, ...config }}>
+    <CalendarProvider
+      initialConfig={{ ...defaultConfig, ...config }}
+      currentView={currentView}
+      setCurrentView={setCurrentView}
+    >
       <div className="flex flex-col h-full border border-gray-200 rounded-lg overflow-hidden">
         <CalendarHeader />
         <div className="flex-1 overflow-y-auto">
@@ -56,9 +70,7 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
         {/* Mobile floating action button for adding tasks */}
         {isMobile && onAddItem && (
           <button
-            onClick={() =>
-              onAddItem({ dueDate: serializeDate(now()), isAllDay: false })
-            }
+            onClick={handleAddFloating}
             className="fixed bottom-4 right-4 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center"
             aria-label="Add new task"
           >

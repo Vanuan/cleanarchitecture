@@ -7,7 +7,7 @@ import DayView from "./DayView";
 
 interface CalendarContentProps {
   items: TodoViewModel[];
-  renderItem: (item: TodoViewModel, viewType: string) => React.ReactNode;
+  renderItem: (item: TodoViewModel) => React.ReactNode;
   isLoading?: boolean;
   error?: Error | null;
   onAddItem?: ({

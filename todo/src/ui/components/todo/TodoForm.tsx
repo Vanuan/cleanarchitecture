@@ -31,10 +31,12 @@ type TodoFormModel = {
 interface TodoFormProps {
   onClose: () => void;
   onSubmit?: (data: TodoFormModel) => void;
-  initialValues?: TodoFormModel;
+  initialValues?: TodoFormModel & { id?: string };
 }
 
 export function TodoForm({ onClose, initialValues, onSubmit }: TodoFormProps) {
+  const isEditMode = !!initialValues?.id;
+
   const [title, setTitle] = useState(initialValues?.title || "");
   const [completed, setCompleted] = useState(initialValues?.completed || false);
   const [description, setDescription] = useState("");
@@ -112,7 +114,7 @@ export function TodoForm({ onClose, initialValues, onSubmit }: TodoFormProps) {
   return (
     <ModalContent onSubmit={handleSubmit}>
       <TitleBar>
-        <ModalTitle>{onSubmit ? "Edit Todo" : "New Todo"}</ModalTitle>
+        <ModalTitle>{isEditMode ? "Edit Todo" : "New Todo"}</ModalTitle>
         <CloseButton type="button" onClick={onClose}>
           <CloseIcon />
         </CloseButton>
@@ -186,7 +188,7 @@ export function TodoForm({ onClose, initialValues, onSubmit }: TodoFormProps) {
         <div className="flex justify-end">
           <SubmitButton type="submit" $disabled={!title.trim()}>
             <SubmitIcon />
-            {onSubmit ? "Update Todo" : "Add Todo"}
+            {isEditMode ? "Update Todo" : "Add Todo"}
           </SubmitButton>
         </div>
       </FormFieldContainer>

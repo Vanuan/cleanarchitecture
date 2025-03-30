@@ -2,12 +2,11 @@ import React from "react";
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 import { useMonthData, useCalendarNavigation } from "../calendar-hooks";
 import { format, isSameDay } from "date-fns";
-import { ViewType } from "../../../organisms/EntityView";
 import { serializeDate } from "../../../../../lib/utils/date";
 
 const MonthView: React.FC<{
   todos: TodoViewModel[];
-  renderItem: (todo: TodoViewModel, viewType: string) => React.ReactNode;
+  renderItem: (todo: TodoViewModel) => React.ReactNode;
   onAddItem?: ({
     dueDate,
     isAllDay,
@@ -26,7 +25,7 @@ const MonthView: React.FC<{
       isCurrentMonth: boolean;
     };
     todos: TodoViewModel[];
-    renderItem: (todo: TodoViewModel, viewType: ViewType) => React.ReactNode;
+    renderItem: (todo: TodoViewModel) => React.ReactNode;
     onAddItem?: ({
       dueDate,
       isAllDay,

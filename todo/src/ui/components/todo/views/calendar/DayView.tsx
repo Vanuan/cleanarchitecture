@@ -18,11 +18,14 @@ import {
   parseDateString,
   serializeDate,
 } from "../../../../../lib/utils/date";
-import { ViewType } from "../../../organisms/EntityView";
+import { EntityViewType } from "../../../organisms/EntityView";
 
 interface DayViewProps {
   todos: TodoViewModel[];
-  renderItem: (todo: TodoViewModel, viewType: ViewType) => React.ReactNode;
+  renderItem: (
+    todo: TodoViewModel,
+    viewType: EntityViewType,
+  ) => React.ReactNode;
   onAddItem?: ({
     dueDate,
     isAllDay,

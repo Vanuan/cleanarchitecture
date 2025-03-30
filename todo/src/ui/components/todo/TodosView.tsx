@@ -1,18 +1,23 @@
 import { Todo } from "../../../domain/entities/todo";
-import { useTodos, useUpdateTodo } from "../../hooks/useTodos";
-import { EntityView, ViewConfig, ViewType } from "../organisms/EntityView";
+import { useTodos, useUpdateTodo, useCreateTodo } from "../../hooks/useTodos";
+import {
+  EntityView,
+  EntityViewType,
+  FormModel,
+  ViewConfig,
+} from "../organisms/EntityView";
 import { TodoItem } from "./TodoItem";
 import { TodoForm } from "./TodoForm";
 import { TodoViewModel } from "../../viewmodels/TodoViewModel";
 // import TodoTableView from "./views/TodoTableView";
 import TodoBoardView from "./views/TodoBoardView";
 import TodoCalendarView from "./views/TodoCalendarView";
-import TodoGalleryView from "./views/TodoGalleryView";
+// import TodoGalleryView from "./views/TodoGalleryView";
 import TodoListView from "./views/TodoListView";
 import { LoadingState, Spinner } from "./styles";
-import { useState } from "react";
-import { serializeDate, now } from "../../../lib/utils/date";
-
+import { useCallback } from "react";
+import { parseDateString } from "../../../lib/utils/date";
+import useUiStore from "./store/uiStore";
 const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
   id: todo.id,
   title: todo.title,
@@ -26,39 +31,117 @@ const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
 export function TodosView() {
   const { data: todos, isLoading } = useTodos();
   const { mutate: updateTodo } = useUpdateTodo();
-  const [editingTodo, setEditingTodo] = useState<TodoViewModel | null>(null);
+  const { mutate: createTodo } = useCreateTodo();
 
-  const handleTodoUpdate = (id: string, columnId: string) => {
-    const completed = columnId === "completed";
-    updateTodo({ id: id, updates: { completed: completed } });
-  };
+  // Get state and actions from uiStore
+  const currentView = useUiStore(
+    (state) => state.currentView as EntityViewType,
+  ); // Cast to combined type
+  const setCurrentView = useUiStore(
+    (state) => state.setCurrentView as (v: EntityViewType) => void,
+  ); // Cast setter
+  const isFormOpen = useUiStore((state) => state.isFormOpen);
+  const setIsFormOpen = useUiStore((state) => state.setIsFormOpen);
+  const editingTodoViewModel = useUiStore((state) => state.editingTodo);
+  const setEditingTodoViewModel = useUiStore((state) => state.setEditingTodo);
 
-  const handleEditTodo = (todo: TodoViewModel) => {
-    setEditingTodo(todo);
-  };
+  const openForm = useCallback(() => {
+    setEditingTodoViewModel(null);
+    setIsFormOpen(true);
+  }, [setIsFormOpen, setEditingTodoViewModel]);
 
-  const handleCloseForm = () => {
-    setEditingTodo(null);
-  };
+  const closeForm = useCallback(() => {
+    setIsFormOpen(false);
+    setEditingTodoViewModel(null);
+  }, [setIsFormOpen, setEditingTodoViewModel]);
 
-  const handleUpdateTodoSubmit = (
-    updatedTodo: Omit<TodoViewModel, "id" | "displayStatus">,
-  ) => {
-    const dueDate = updatedTodo.dueDate
-      ? new Date(updatedTodo.dueDate)
-      : undefined;
-    updateTodo({
-      id: editingTodo!.id,
-      updates: {
-        title: updatedTodo.title,
-        completed: updatedTodo.completed,
+  const handleEditTodo = useCallback(
+    (todo: TodoViewModel) => {
+      setEditingTodoViewModel(todo);
+      setIsFormOpen(true);
+    },
+    [setEditingTodoViewModel, setIsFormOpen],
+  );
+
+  const handleCreateTodo = useCallback(
+    // Receives data shaped like the ViewModel/Form
+    (formData: FormModel<TodoViewModel>) => {
+      // Convert formData (ViewModel like) back to Domain Entity Omit<Todo,...>
+      const domainData: Omit<
+        Todo,
+        "id" | "createdAt" | "updatedAt" | "tags"
+      > & { tags?: string[] } = {
+        title: formData.title || "", // Ensure title is defined
+        completed: formData.completed || false,
+        dueDate: formData.dueDate
+          ? parseDateString(formData.dueDate)
+          : undefined,
+        isAllDay: formData.isAllDay,
+        // Assuming tags are handled directly in the service/repo or extracted differently
+        // If the form provided tags: tags: formData.tags
+      };
+      createTodo(domainData);
+    },
+    [createTodo],
+  );
+  const handleUpdateTodo = useCallback(
+    // Receives data shaped like the ViewModel/Form
+    (id: string, formData: FormModel<TodoViewModel>) => {
+      // Convert formData (ViewModel like) back to Domain Entity Partial<Todo>
+      const domainUpdates: Partial<Todo> = {
+        // Only include fields that were potentially changed by the form
+        ...(formData.title !== undefined && { title: formData.title }),
+        ...(formData.completed !== undefined && {
+          completed: formData.completed,
+        }),
+        // Handle date conversion carefully
+        ...(formData.dueDate !== undefined && {
+          dueDate: formData.dueDate
+            ? parseDateString(formData.dueDate)
+            : undefined,
+        }),
+        ...(formData.isAllDay !== undefined && { isAllDay: formData.isAllDay }),
+        // If the form provided tags: ...(formData.tags !== undefined && { tags: formData.tags })
+      };
+
+      // Don't submit empty updates
+      if (Object.keys(domainUpdates).length > 0) {
+        updateTodo({ id, updates: domainUpdates });
+      } else {
+        console.warn("Update called with no changes from form data.");
+      }
+    },
+    [updateTodo],
+  );
+
+  const renderTodoItem = useCallback(
+    (viewModel: TodoViewModel) => (
+      <TodoItem
+        key={viewModel.id}
+        viewModel={viewModel}
+        onEdit={handleEditTodo}
+        viewType={currentView as EntityViewType}
+      />
+    ),
+    [handleEditTodo, currentView],
+  );
+
+  const handleCalendarAddItem = useCallback(
+    ({ dueDate, isAllDay }: { dueDate?: string; isAllDay?: boolean }) => {
+      setEditingTodoViewModel({
+        // Pre-fill ViewModel for adding
+        id: "",
+        title: "",
+        completed: false,
+        tags: [],
+        displayStatus: "Todo",
         dueDate,
-        tags: updatedTodo.tags,
-        isAllDay: updatedTodo.isAllDay,
-      },
-    });
-    setEditingTodo(null);
-  };
+        isAllDay,
+      });
+      setIsFormOpen(true);
+    },
+    [setEditingTodoViewModel, setIsFormOpen],
+  );
 
   if (isLoading) {
     return (
@@ -68,36 +151,7 @@ export function TodosView() {
     );
   }
 
-  const todoViewModels = (todos || []).map(mapTodoToViewModel);
-
   // how to render a Todo
-  const renderTodoItem = (viewModel: TodoViewModel, viewType: ViewType) => (
-    <TodoItem
-      key={viewModel.id}
-      viewModel={viewModel}
-      viewType={viewType}
-      onEdit={handleEditTodo}
-    />
-  );
-
-  const handleAddItem = ({
-    dueDate,
-    isAllDay,
-  }: {
-    dueDate?: string;
-    isAllDay?: boolean;
-  }) => {
-    setEditingTodo({
-      id: "",
-      title: "",
-      completed: false,
-      tags: [],
-      displayStatus: "Todo",
-      dueDate: dueDate || serializeDate(now()),
-      isAllDay,
-    });
-  };
-
   const defaultViewConfigs: ViewConfig<TodoViewModel, any>[] = [
     {
       id: "list",
@@ -121,44 +175,67 @@ export function TodosView() {
       component: TodoBoardView,
       config: {},
       getItemId: (item) => item.id,
-      onItemUpdate: handleTodoUpdate,
+      onItemUpdate: (id, columnId) => {
+        const completed = columnId === "completed";
+        handleUpdateTodo(id, { completed });
+      },
       renderItem: renderTodoItem,
     },
     {
       id: "month",
-      label: "Calendar",
+      label: "Month",
       component: TodoCalendarView,
-      config: {
-        dateField: "dueDate",
-      },
-      getItemId: (item) => item.id,
+      getItemId: (viewModel) => viewModel.id,
       renderItem: renderTodoItem,
-      onAddItem: handleAddItem,
+      config: { dateField: "dueDate" },
+      onAddItem: handleCalendarAddItem,
     },
     {
-      id: "gallery",
-      label: "Gallery",
-      component: TodoGalleryView,
-      config: {},
-      getItemId: (item) => item.id,
+      id: "week",
+      label: "Week",
+      component: TodoCalendarView,
+      getItemId: (viewModel) => viewModel.id,
       renderItem: renderTodoItem,
+      config: { dateField: "dueDate" },
+      onAddItem: handleCalendarAddItem,
     },
+    {
+      id: "day",
+      label: "Day",
+      component: TodoCalendarView,
+      getItemId: (viewModel) => viewModel.id,
+      renderItem: renderTodoItem,
+      config: { dateField: "dueDate" },
+      onAddItem: handleCalendarAddItem,
+    },
+    // {
+    //   id: "gallery",
+    //   label: "Gallery",
+    //   component: TodoGalleryView,
+    //   config: {},
+    //   getItemId: (item) => item.id,
+    //   renderItem: renderTodoItem,
+    // },
   ];
+  const todoViewModels = (todos || []).map(mapTodoToViewModel);
 
   return (
     <EntityView<TodoViewModel>
       items={todoViewModels}
       defaultViewConfigs={defaultViewConfigs}
-      defaultView="list"
       getItemId={(viewModel) => viewModel.id}
       EntityForm={TodoForm}
-      formProps={{
-        initialValues: editingTodo,
-        onSubmit: editingTodo ? handleUpdateTodoSubmit : undefined,
-        onClose: handleCloseForm,
-      }}
+      onUpdateItem={handleUpdateTodo}
+      onCreateItem={handleCreateTodo}
       addButtonText="Add Todo"
+      isLoading={isLoading}
       renderItem={renderTodoItem}
+      currentView={currentView}
+      setCurrentView={setCurrentView}
+      isFormOpen={isFormOpen}
+      openForm={openForm}
+      closeForm={closeForm}
+      editingItem={editingTodoViewModel}
     />
   );
 }

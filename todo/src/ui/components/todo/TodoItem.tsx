@@ -23,9 +23,10 @@ import {
   formatDateAsFullDayDisplay,
   parseDateString,
 } from "../../../lib/utils/date";
+import { EntityViewType } from "../organisms/EntityView";
 interface Props {
   viewModel: TodoViewModel;
-  viewType: "list" | "board" | "table" | "gallery" | "month" | "week" | "day";
+  viewType: EntityViewType;
   onEdit: (todo: TodoViewModel) => void;
 }
 
