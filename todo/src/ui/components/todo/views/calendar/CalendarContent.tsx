@@ -10,7 +10,13 @@ interface CalendarContentProps {
   renderItem: (item: TodoViewModel, viewType: string) => React.ReactNode;
   isLoading?: boolean;
   error?: Error | null;
-  onAddItem?: ({ dueDate, isAllDay }: { dueDate?: Date; isAllDay?: boolean }) => void;
+  onAddItem?: ({
+    dueDate,
+    isAllDay,
+  }: {
+    dueDate?: string;
+    isAllDay?: boolean;
+  }) => void;
 }
 
 const CalendarContent: React.FC<CalendarContentProps> = ({
@@ -48,25 +54,17 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
   return (
     <>
       {view === "month" && (
-        <MonthView 
-          todos={items} 
-          renderItem={renderItem} 
+        <MonthView
+          todos={items}
+          renderItem={renderItem}
           onAddItem={onAddItem}
         />
       )}
       {view === "week" && (
-        <WeekView
-          todos={items}
-          renderItem={renderItem}
-          onAddItem={onAddItem}
-        />
+        <WeekView todos={items} renderItem={renderItem} onAddItem={onAddItem} />
       )}
       {view === "day" && (
-        <DayView
-          todos={items}
-          renderItem={renderItem}
-          onAddItem={onAddItem}
-        />
+        <DayView todos={items} renderItem={renderItem} onAddItem={onAddItem} />
       )}
     </>
   );

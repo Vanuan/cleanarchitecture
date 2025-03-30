@@ -9,9 +9,18 @@ import tw from "tailwind-styled-components";
 import { createPortal } from "react-dom";
 import { Entity } from "../../../domain/entities/entity";
 
+export type ViewType =
+  | "list"
+  | "board"
+  | "table"
+  | "gallery"
+  | "month"
+  | "week"
+  | "day";
+
 // Generic Types (Less Domain Specific)
 export interface ViewConfig<T extends Entity, P = {}> {
-  id: string;
+  id: ViewType;
   label: string;
   component: React.ComponentType<{
     items: T[];
@@ -22,19 +31,23 @@ export interface ViewConfig<T extends Entity, P = {}> {
     onAddItem?: (item: Partial<T>) => void;
   }>;
   config?: P;
+  getItemId?: (item: T) => string;
+  onItemUpdate?: (id: string, newValue: any) => void;
+  onAddItem?: (item: Partial<T>) => void;
+  renderItem: (item: T, viewType: ViewType) => React.ReactNode;
 }
 
 interface EntityViewProps<T extends Entity, P = {}> {
   items: T[];
   defaultViewConfigs: ViewConfig<T, P>[];
   customViewConfigs?: ViewConfig<T, P>[];
-  defaultView: string;
+  defaultView: ViewType;
   getItemId: (item: T) => string;
   EntityForm: React.ComponentType<{ onClose: () => void }>;
   formProps: any;
   addButtonText?: string;
   isLoading?: boolean;
-  renderItem: (item: T, viewType: string) => React.ReactNode;
+  renderItem: (item: T, viewType: ViewType) => React.ReactNode;
 }
 
 const Container = tw.div`
@@ -74,7 +87,7 @@ export function EntityView<T extends Entity, P = {}>({
   isLoading = false,
   renderItem,
 }: EntityViewProps<T, P>) {
-  const [currentView, setCurrentView] = useState(defaultView);
+  const [currentView, setCurrentView] = useState<ViewType>(defaultView);
   const [isFormOpen, setIsFormOpen] = useState(!!formProps.initialValues);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -102,9 +115,6 @@ export function EntityView<T extends Entity, P = {}>({
   }, [formProps.initialValues]);
 
   const mergedViewConfigs = useMemo(() => {
-    const customConfigMap = new Map(
-      customViewConfigs?.map((config) => [config.id, config.component]),
-    );
     const merged = [...defaultViewConfigs];
 
     customViewConfigs?.forEach((customConfig) => {
@@ -127,21 +137,25 @@ export function EntityView<T extends Entity, P = {}>({
     if (!currentViewConfig) {
       return <div>Invalid view configuration</div>;
     }
-    const {
-      component: ViewComponent,
-      config,
-      getItemId,
-      onItemUpdate,
-      onAddItem,
-    } = currentViewConfig;
+    const { component: ViewComponent, config } = currentViewConfig;
+
+    // Use the view config's getItemId, onItemUpdate, onAddItem if provided,
+    // otherwise use the props passed to EntityView
+    const viewGetItemId = currentViewConfig.getItemId || getItemId;
+    const viewOnItemUpdate = currentViewConfig.onItemUpdate;
+    const viewOnAddItem = currentViewConfig.onAddItem;
+
+    // Create a wrapper for renderItem to match the expected signature
+    const viewRenderItem = (item: T) => renderItem(item, currentView);
+
     return (
       <ViewComponent
         items={items}
-        config={config}
-        getItemId={getItemId}
-        onItemUpdate={onItemUpdate}
-        renderItem={renderItem}
-        onAddItem={onAddItem}
+        config={config as P}
+        getItemId={viewGetItemId}
+        onItemUpdate={viewOnItemUpdate}
+        renderItem={viewRenderItem}
+        onAddItem={viewOnAddItem}
       />
     );
   };

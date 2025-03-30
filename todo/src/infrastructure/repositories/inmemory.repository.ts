@@ -1,5 +1,5 @@
 import { Repository } from "../../domain/repository/repository";
-
+import { generateUUID } from "../../lib/utils/uuid";
 export class InMemoryRepository<T extends { id: string }>
   implements Repository<T>
 {
@@ -14,12 +14,12 @@ export class InMemoryRepository<T extends { id: string }>
   }
 
   async create(data: Omit<T, "id" | "createdAt" | "updatedAt">): Promise<T> {
-    const item: T = {
+    const item = {
       ...data,
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as T;
+    } as unknown as T;
     this.items.push(item);
     return item;
   }

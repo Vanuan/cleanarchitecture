@@ -1,16 +1,17 @@
 import { Todo } from "../../../domain/entities/todo";
 import { useTodos, useUpdateTodo } from "../../hooks/useTodos";
-import { EntityView, ViewConfig } from "../organisms/EntityView";
+import { EntityView, ViewConfig, ViewType } from "../organisms/EntityView";
 import { TodoItem } from "./TodoItem";
 import { TodoForm } from "./TodoForm";
 import { TodoViewModel } from "../../viewmodels/TodoViewModel";
-import TodoTableView from "./views/TodoTableView";
+// import TodoTableView from "./views/TodoTableView";
 import TodoBoardView from "./views/TodoBoardView";
 import TodoCalendarView from "./views/TodoCalendarView";
 import TodoGalleryView from "./views/TodoGalleryView";
 import TodoListView from "./views/TodoListView";
 import { LoadingState, Spinner } from "./styles";
 import { useState } from "react";
+import { serializeDate, now } from "../../../lib/utils/date";
 
 const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
   id: todo.id,
@@ -43,14 +44,15 @@ export function TodosView() {
   const handleUpdateTodoSubmit = (
     updatedTodo: Omit<TodoViewModel, "id" | "displayStatus">,
   ) => {
+    const dueDate = updatedTodo.dueDate
+      ? new Date(updatedTodo.dueDate)
+      : undefined;
     updateTodo({
       id: editingTodo!.id,
       updates: {
         title: updatedTodo.title,
         completed: updatedTodo.completed,
-        dueDate: updatedTodo.dueDate
-          ? new Date(updatedTodo.dueDate)
-          : undefined,
+        dueDate,
         tags: updatedTodo.tags,
         isAllDay: updatedTodo.isAllDay,
       },
@@ -69,10 +71,7 @@ export function TodosView() {
   const todoViewModels = (todos || []).map(mapTodoToViewModel);
 
   // how to render a Todo
-  const renderTodoItem = (
-    viewModel: TodoViewModel,
-    viewType: "list" | "board" | "table" | "gallery" | "month" | "week" | "day",
-  ) => (
+  const renderTodoItem = (viewModel: TodoViewModel, viewType: ViewType) => (
     <TodoItem
       key={viewModel.id}
       viewModel={viewModel}
@@ -85,7 +84,7 @@ export function TodosView() {
     dueDate,
     isAllDay,
   }: {
-    dueDate: Date;
+    dueDate?: string;
     isAllDay?: boolean;
   }) => {
     setEditingTodo({
@@ -94,8 +93,8 @@ export function TodosView() {
       completed: false,
       tags: [],
       displayStatus: "Todo",
-      dueDate: dueDate.toISOString(),
-      isAllDay: isAllDay,
+      dueDate: dueDate || serializeDate(now()),
+      isAllDay,
     });
   };
 
@@ -126,7 +125,7 @@ export function TodosView() {
       renderItem: renderTodoItem,
     },
     {
-      id: "calendar",
+      id: "month",
       label: "Calendar",
       component: TodoCalendarView,
       config: {
@@ -150,7 +149,7 @@ export function TodosView() {
     <EntityView<TodoViewModel>
       items={todoViewModels}
       defaultViewConfigs={defaultViewConfigs}
-      defaultView="calendar"
+      defaultView="list"
       getItemId={(viewModel) => viewModel.id}
       EntityForm={TodoForm}
       formProps={{

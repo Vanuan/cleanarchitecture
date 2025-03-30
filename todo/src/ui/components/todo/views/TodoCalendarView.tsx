@@ -4,6 +4,7 @@ import { TodoViewModel } from "../../../viewmodels/TodoViewModel";
 import CalendarHeader from "./calendar/CalendarHeader";
 import CalendarContent from "./calendar/CalendarContent";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
+import { serializeDate, now } from "../../../../lib/utils/date";
 
 interface ViewProps<T> {
   items: T[];
@@ -11,7 +12,7 @@ interface ViewProps<T> {
   renderItem: (item: T, viewType: string) => React.ReactNode;
   isLoading?: boolean;
   error?: Error | null;
-  onAddItem?: (date: Date) => void;
+  onAddItem?: (item: Partial<T>) => void;
 }
 
 interface CalendarConfig {
@@ -55,7 +56,9 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
         {/* Mobile floating action button for adding tasks */}
         {isMobile && onAddItem && (
           <button
-            onClick={() => onAddItem({ dueDate: new Date(), isAllDay: false })}
+            onClick={() =>
+              onAddItem({ dueDate: serializeDate(now()), isAllDay: false })
+            }
             className="fixed bottom-4 right-4 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center"
             aria-label="Add new task"
           >

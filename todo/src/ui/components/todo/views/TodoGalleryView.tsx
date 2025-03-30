@@ -18,7 +18,6 @@ const GalleryItem = tw.div`
 
 const TodoGalleryView: React.FC<TodoGalleryViewProps> = ({
   items,
-  config,
   getItemId,
 }) => {
   return (

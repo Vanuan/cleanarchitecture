@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarConfig } from "./types";
+import { CalendarConfig, CalendarViewType } from "./types";
 import { CalendarContext } from "./calendar-context";
 
 export const CalendarProvider: React.FC<{
@@ -7,7 +7,7 @@ export const CalendarProvider: React.FC<{
   initialConfig?: Partial<CalendarConfig>;
 }> = ({ children, initialConfig = {} }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState<"month" | "week" | "week-scroll" | "agenda">("month");
+  const [view, setView] = useState<CalendarViewType>("month");
   const [config, setConfig] = useState<CalendarConfig>({
     firstDayOfWeek: 1,
     timeFormat: "12h",

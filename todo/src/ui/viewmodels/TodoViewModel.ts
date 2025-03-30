@@ -4,6 +4,7 @@ export interface TodoViewModel {
   description?: string;
   completed: boolean;
   dueDate?: string;
+  endDate?: string;
   isAllDay?: boolean;
   priority?: string;
   tags: string[];

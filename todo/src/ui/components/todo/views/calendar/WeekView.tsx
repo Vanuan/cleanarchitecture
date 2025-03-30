@@ -1,7 +1,6 @@
 import React from "react";
 import {
   format,
-  isSameDay,
   isToday,
   isTomorrow,
   isYesterday,
@@ -14,11 +13,19 @@ import {
 } from "date-fns";
 import { useCalendarNavigation, useTodosForDate } from "../calendar-hooks";
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
+import { ViewType } from "../../../organisms/EntityView";
+import { serializeDate } from "../../../../../lib/utils/date";
 
 interface WeekViewProps {
   todos: TodoViewModel[];
-  renderItem: (todo: TodoViewModel, viewType: string) => React.ReactNode;
-  onAddItem?: ({ dueDate, isAllDay }: { dueDate?: Date; isAllDay?: boolean }) => void;
+  renderItem: (todo: TodoViewModel, viewType: ViewType) => React.ReactNode;
+  onAddItem?: ({
+    dueDate,
+    isAllDay,
+  }: {
+    dueDate?: string;
+    isAllDay?: boolean;
+  }) => void;
 }
 
 const WeekView: React.FC<WeekViewProps> = ({
@@ -32,40 +39,38 @@ const WeekView: React.FC<WeekViewProps> = ({
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
-  
+
   // Get week number and date range for display
   const weekNumber = getWeek(currentDate);
   const weekRangeText = `${format(weekStart, "MMM d")}-${format(weekEnd, "d, yyyy")}`;
-  
+
   // Previous and next week navigation
   const prevWeekStart = subWeeks(weekStart, 1);
   const nextWeekStart = addWeeks(weekStart, 1);
   const prevWeekNumber = getWeek(prevWeekStart);
   const nextWeekNumber = getWeek(nextWeekStart);
-  
+
   const handlePrevWeek = () => {
     setCurrentDate(prevWeekStart);
   };
-  
+
   const handleNextWeek = () => {
     setCurrentDate(nextWeekStart);
   };
-  
-  // Check if current week is this week
-  const isCurrentWeek = isSameDay(weekStart, startOfWeek(new Date(), { weekStartsOn: 1 }));
 
   return (
     <div className="flex flex-col h-full">
       {/* Week Navigation - Specific to Week View */}
       <div className="grid grid-cols-3 bg-white border-b border-gray-200">
-        <button 
+        <button
           onClick={handlePrevWeek}
           className="flex flex-col items-center py-4 hover:bg-gray-50 border-r border-gray-200"
         >
           <span className="text-sm text-gray-500">Previous</span>
           <span className="text-base font-medium">Week {prevWeekNumber}</span>
           <span className="text-sm text-gray-500">
-            {format(prevWeekStart, "MMM d")}-{format(endOfWeek(prevWeekStart, { weekStartsOn: 1 }), "d")}
+            {format(prevWeekStart, "MMM d")}-
+            {format(endOfWeek(prevWeekStart, { weekStartsOn: 1 }), "d")}
           </span>
         </button>
         <div className="flex flex-col items-center justify-center py-4 bg-blue-50">
@@ -75,14 +80,15 @@ const WeekView: React.FC<WeekViewProps> = ({
           </span>
           <span className="text-sm text-blue-600">{weekRangeText}</span>
         </div>
-        <button 
+        <button
           onClick={handleNextWeek}
           className="flex flex-col items-center py-4 hover:bg-gray-50 border-l border-gray-200"
         >
           <span className="text-sm text-gray-500">Next</span>
           <span className="text-base font-medium">Week {nextWeekNumber}</span>
           <span className="text-sm text-gray-500">
-            {format(nextWeekStart, "MMM d")}-{format(endOfWeek(nextWeekStart, { weekStartsOn: 1 }), "d")}
+            {format(nextWeekStart, "MMM d")}-
+            {format(endOfWeek(nextWeekStart, { weekStartsOn: 1 }), "d")}
           </span>
         </button>
       </div>
@@ -108,8 +114,14 @@ const WeekView: React.FC<WeekViewProps> = ({
 interface DaySectionProps {
   day: Date;
   todos: TodoViewModel[];
-  renderItem: (todo: TodoViewModel, viewType: string) => React.ReactNode;
-  onAddItem?: ({ dueDate, isAllDay }: { dueDate: Date; isAllDay?: boolean }) => void;
+  renderItem: (todo: TodoViewModel, viewType: ViewType) => React.ReactNode;
+  onAddItem?: ({
+    dueDate,
+    isAllDay,
+  }: {
+    dueDate: string;
+    isAllDay?: boolean;
+  }) => void;
 }
 
 const DaySection: React.FC<DaySectionProps> = ({
@@ -122,14 +134,18 @@ const DaySection: React.FC<DaySectionProps> = ({
   const isDayToday = isToday(day);
   const isDayTomorrow = isTomorrow(day);
   const isDayYesterday = isYesterday(day);
-  
+
   // Determine background color based on day status
-  const bgColor = isDayToday ? "bg-blue-50" : (dayTodos.length === 0 ? "bg-gray-50" : "");
+  const bgColor = isDayToday
+    ? "bg-blue-50"
+    : dayTodos.length === 0
+      ? "bg-gray-50"
+      : "";
 
   const handleAddItem = () => {
     if (onAddItem) {
       // In week view, default to all-day tasks
-      onAddItem({ dueDate: day, isAllDay: true });
+      onAddItem({ dueDate: serializeDate(day), isAllDay: true });
     }
   };
 
@@ -140,10 +156,12 @@ const DaySection: React.FC<DaySectionProps> = ({
         <span className={`text-lg ${isDayToday ? "text-blue-700" : ""}`}>
           {format(day, "EEEE")}
         </span>
-        <span className={`text-sm ${isDayToday ? "text-blue-600" : "text-gray-500"} ml-2`}>
+        <span
+          className={`text-sm ${isDayToday ? "text-blue-600" : "text-gray-500"} ml-2`}
+        >
           {format(day, "MMMM d, yyyy")}
         </span>
-        
+
         {isDayToday && (
           <span className="ml-2 text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded">
             Today
@@ -174,7 +192,7 @@ const DaySection: React.FC<DaySectionProps> = ({
               {renderItem(todo, "week")}
             </div>
           ))}
-          
+
           {onAddItem && (
             <button
               onClick={handleAddItem}

@@ -91,7 +91,7 @@ export class LocalStorageTodoRepository implements TodoRepository {
     );
   }
 
-  private dateSerializer(key: string, value: any): any {
+  private dateSerializer(_: string, value: Date): string {
     if (value instanceof Date) {
       return value.toISOString();
     }

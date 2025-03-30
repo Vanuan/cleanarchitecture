@@ -9,12 +9,7 @@ interface TodoListViewProps {
   renderItem: (item: TodoViewModel) => React.ReactNode;
 }
 
-const TodoListView: React.FC<TodoListViewProps> = ({
-  items,
-  config,
-  getItemId,
-  renderItem,
-}) => {
+const TodoListView: React.FC<TodoListViewProps> = ({ items, renderItem }) => {
   return <List items={items} renderItem={renderItem} />;
 };
 

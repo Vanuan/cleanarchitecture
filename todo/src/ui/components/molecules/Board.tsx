@@ -21,7 +21,7 @@ interface BoardProps<T> {
     title: string;
     filter: (item: T) => boolean;
   }[];
-  onItemUpdate: (id: string, columnId: string) => void;
+  onItemUpdate?: (id: string, columnId: string) => void;
   renderItem: (item: T) => React.ReactNode;
   getItemId: (item: T) => string;
 }
@@ -54,7 +54,7 @@ export function Board<T>({
     }
 
     if (destination.droppableId !== source.droppableId) {
-      onItemUpdate(draggableId, destination.droppableId);
+      onItemUpdate?.(draggableId, destination.droppableId);
     }
   };
 

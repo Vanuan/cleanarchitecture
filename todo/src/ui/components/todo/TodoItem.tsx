@@ -19,18 +19,13 @@ import {
   DeleteIcon,
   EditIcon,
 } from "./icons";
-import { format, parseISO } from "date-fns";
-
+import {
+  formatDateAsFullDayDisplay,
+  parseDateString,
+} from "../../../lib/utils/date";
 interface Props {
   viewModel: TodoViewModel;
-  viewType:
-    | "list"
-    | "board"
-    | "table"
-    | "gallery"
-    | "month"
-    | "week"
-    | "day";
+  viewType: "list" | "board" | "table" | "gallery" | "month" | "week" | "day";
   onEdit: (todo: TodoViewModel) => void;
 }
 
@@ -47,28 +42,6 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
 
   const handleDelete = () => {
     deleteTodo(viewModel.id);
-  };
-
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return null;
-    try {
-      const date = new Date(dateString);
-      return format(date, "MMM dd, yyyy");
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return null;
-    }
-  };
-
-  const formatTime = (dateString: string | undefined) => {
-    if (!dateString) return null;
-    try {
-      const date = parseISO(dateString);
-      return format(date, "h:mm a");
-    } catch (error) {
-      console.error("Error formatting time:", error);
-      return null;
-    }
   };
 
   const handleEdit = () => {
@@ -96,7 +69,7 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
         </TodoEditButton>
       </>
     );
-  } 
+  }
 
   if (viewType === "month") {
     return (
@@ -145,7 +118,12 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
                 <TodoTag key={tag}>{tag}</TodoTag>
               ))}
               {viewModel.dueDate && (
-                <TodoTag>Due: {formatDate(viewModel.dueDate)}</TodoTag>
+                <TodoTag>
+                  Due:{" "}
+                  {formatDateAsFullDayDisplay(
+                    parseDateString(viewModel.dueDate),
+                  )}
+                </TodoTag>
               )}
             </TagsContainer>
           </TodoContentArea>
@@ -176,9 +154,11 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
             <TodoCircleIcon $completed={viewModel.completed} />
           )}
         </TodoToggleButton>
-        
+
         <div className="flex-1 min-w-0">
-          <h4 className={`${viewModel.completed ? "text-gray-500 line-through" : "text-gray-900"}`}>
+          <h4
+            className={`${viewModel.completed ? "text-gray-500 line-through" : "text-gray-900"}`}
+          >
             {viewModel.title}
           </h4>
           <div className="flex flex-wrap gap-1.5 mt-2">
@@ -191,7 +171,7 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
             ))}
           </div>
         </div>
-        
+
         <div className="flex space-x-2 ml-2">
           <TodoDeleteButton onClick={handleDelete}>
             <DeleteIcon />
@@ -231,7 +211,10 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
               <TodoTag key={tag}>{tag}</TodoTag>
             ))}
             {viewModel.dueDate && (
-              <TodoTag>Due: {formatDate(viewModel.dueDate)}</TodoTag>
+              <TodoTag>
+                Due:{" "}
+                {formatDateAsFullDayDisplay(parseDateString(viewModel.dueDate))}
+              </TodoTag>
             )}
           </TagsContainer>
         </TodoContentArea>

@@ -1,6 +1,6 @@
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 
-export type ViewType = "month" | "week" | "day";
+export type CalendarViewType = "month" | "week" | "day";
 
 export interface CalendarConfig {
   firstDayOfWeek: 0 | 1;
@@ -10,18 +10,18 @@ export interface CalendarConfig {
 
 export interface CalendarContextValue {
   currentDate: Date;
-  view: ViewType;
+  view: CalendarViewType;
   config: CalendarConfig;
   setCurrentDate: (date: Date) => void;
-  setView: (view: ViewType) => void;
+  setView: (view: CalendarViewType) => void;
   updateConfig: (config: Partial<CalendarConfig>) => void;
 }
 
 export interface CalendarContextType {
   currentDate: Date;
   setCurrentDate: React.Dispatch<React.SetStateAction<Date>>;
-  view: ViewType;
-  setView: (view: ViewType) => void;
+  view: CalendarViewType;
+  setView: (view: CalendarViewType) => void;
   config: CalendarConfig;
   today: () => void;
   next: () => void;

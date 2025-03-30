@@ -33,7 +33,6 @@ const TableDataCell = tw.td`
 
 const TodoTableView: React.FC<TodoTableViewProps> = ({
   items,
-  config,
   getItemId,
   renderItem,
 }) => {
