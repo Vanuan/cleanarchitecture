@@ -134,7 +134,7 @@ export function TodosView() {
         key={viewModel.id}
         viewModel={viewModel}
         onEdit={handleEditTodo}
-        viewType={currentView as EntityViewType}
+        viewType={currentView}
       />
     ),
     [handleEditTodo, currentView],

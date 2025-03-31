@@ -9,8 +9,8 @@ export type EntityViewType =
   | "board"
   | "table"
   | "gallery"
-  | "calendar";
-// | CalendarViewType;
+  | "calendar"
+  | CalendarViewType;
 
 export interface ViewConfig<T extends Entity, P = {}> {
   id: EntityViewType;
@@ -22,9 +22,8 @@ export interface ViewConfig<T extends Entity, P = {}> {
     onItemUpdate?: (id: string, newValue: any) => void;
     renderItem: (item: T) => React.ReactNode;
     onAddItem?: (item: Partial<T>) => void;
-    // Calendar views
-    setCurrentView: (v: CalendarViewType) => void;
-    currentView: CalendarViewType;
+    setCurrentView: (v: EntityViewType) => void;
+    currentView: EntityViewType;
   }>;
   config?: P;
   getItemId?: (item: T) => string;

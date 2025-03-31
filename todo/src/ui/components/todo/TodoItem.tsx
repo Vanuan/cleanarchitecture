@@ -24,6 +24,7 @@ import {
   parseDateString,
 } from "../../../lib/utils/date";
 import { EntityViewType } from "../organisms/EntityView";
+
 interface Props {
   viewModel: TodoViewModel;
   viewType: EntityViewType;

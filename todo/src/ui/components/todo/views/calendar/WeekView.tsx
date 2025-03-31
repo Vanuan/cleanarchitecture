@@ -13,7 +13,6 @@ import {
 } from "date-fns";
 import { useCalendarNavigation, useTodosForDate } from "../calendar-hooks";
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
-import { EntityViewType } from "../../../organisms/EntityView";
 import { serializeDate } from "../../../../../lib/utils/date";
 
 interface WeekViewProps {
@@ -114,10 +113,7 @@ const WeekView: React.FC<WeekViewProps> = ({
 interface DaySectionProps {
   day: Date;
   todos: TodoViewModel[];
-  renderItem: (
-    todo: TodoViewModel,
-    viewType: EntityViewType,
-  ) => React.ReactNode;
+  renderItem: (todo: TodoViewModel) => React.ReactNode;
   onAddItem?: ({
     dueDate,
     isAllDay,
@@ -192,7 +188,7 @@ const DaySection: React.FC<DaySectionProps> = ({
                 todo.completed ? "bg-gray-50" : ""
               }`}
             >
-              {renderItem(todo, "week")}
+              {renderItem(todo)}
             </div>
           ))}
 
