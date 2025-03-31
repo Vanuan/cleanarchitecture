@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CalendarProvider } from "./calendar-hooks";
 import { TodoViewModel } from "../../../viewmodels/TodoViewModel";
 import CalendarHeader from "./calendar/CalendarHeader";
 import CalendarContent from "./calendar/CalendarContent";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
 import { serializeDate, now } from "../../../../lib/utils/date";
+import { EntityViewType } from "../../organisms/EntityView";
+import useUiStore from "../store/uiStore";
 import { CalendarViewType } from "./calendar-hooks/types";
 
 interface ViewProps<T> {
@@ -14,8 +16,8 @@ interface ViewProps<T> {
   isLoading?: boolean;
   error?: Error | null;
   onAddItem?: (item: Partial<T>) => void;
-  currentView: CalendarViewType;
-  setCurrentView: (view: CalendarViewType) => void;
+  currentView: EntityViewType;
+  setCurrentView: (view: EntityViewType) => void;
 }
 
 interface CalendarConfig {
@@ -34,11 +36,21 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
   error,
   onAddItem,
   currentView,
-  setCurrentView,
 }) => {
   const isMobile = useMediaQuery("(max-width: 640px)");
 
-  // Set default view based on screen size
+  const calendarViewType = useUiStore(
+    (state) => state.calendarViewType || "month",
+  );
+  const setCalendarViewType = useUiStore((state) => state.setCalendarViewType);
+  // Initialize calendar view when component mounts or currentView changes
+  useEffect(() => {
+    // When first loading calendar view, ensure a calendar view type is set
+    if (currentView === "calendar" && !calendarViewType) {
+      setCalendarViewType("month");
+    }
+  }, [currentView, calendarViewType, setCalendarViewType]);
+
   const defaultConfig: Partial<CalendarConfig> = {
     dateField: "dueDate",
   };
@@ -49,11 +61,15 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
     }
   };
 
+  const handleSetCalendarView = (view: CalendarViewType) => {
+    setCalendarViewType(view);
+  };
+
   return (
     <CalendarProvider
       initialConfig={{ ...defaultConfig, ...config }}
-      currentView={currentView}
-      setCurrentView={setCurrentView}
+      currentView={calendarViewType}
+      setCurrentView={handleSetCalendarView}
     >
       <div className="flex flex-col h-full border border-gray-200 rounded-lg overflow-hidden">
         <CalendarHeader />

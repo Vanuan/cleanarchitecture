@@ -15,7 +15,7 @@ import TodoCalendarView from "./views/TodoCalendarView";
 // import TodoGalleryView from "./views/TodoGalleryView";
 import TodoListView from "./views/TodoListView";
 import { LoadingState, Spinner } from "./styles";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { parseDateString } from "../../../lib/utils/date";
 import useUiStore from "./store/uiStore";
 const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
@@ -62,6 +62,20 @@ export function TodosView() {
     },
     [setEditingTodoViewModel, setIsFormOpen],
   );
+
+  useEffect(() => {
+    // When switching to the calendar view, ensure a default sub-view is selected
+    if (currentView === "calendar") {
+      const calendarViewType = useUiStore.getState().calendarViewType;
+      // If no calendar view is selected, set a default one
+      if (
+        !calendarViewType ||
+        !["month", "week", "day"].includes(calendarViewType)
+      ) {
+        useUiStore.getState().setCalendarViewType("month");
+      }
+    }
+  }, [currentView]);
 
   const handleCreateTodo = useCallback(
     // Receives data shaped like the ViewModel/Form
@@ -182,32 +196,45 @@ export function TodosView() {
       renderItem: renderTodoItem,
     },
     {
-      id: "month",
-      label: "Month",
+      id: "calendar",
+      label: "Calendar",
       component: TodoCalendarView,
       getItemId: (viewModel) => viewModel.id,
       renderItem: renderTodoItem,
-      config: { dateField: "dueDate" },
+      config: {
+        dateField: "dueDate",
+        // defaultView: currentView === "calendar" ? "month" : currentView,
+      },
       onAddItem: handleCalendarAddItem,
     },
-    {
-      id: "week",
-      label: "Week",
-      component: TodoCalendarView,
-      getItemId: (viewModel) => viewModel.id,
-      renderItem: renderTodoItem,
-      config: { dateField: "dueDate" },
-      onAddItem: handleCalendarAddItem,
-    },
-    {
-      id: "day",
-      label: "Day",
-      component: TodoCalendarView,
-      getItemId: (viewModel) => viewModel.id,
-      renderItem: renderTodoItem,
-      config: { dateField: "dueDate" },
-      onAddItem: handleCalendarAddItem,
-    },
+
+    // {
+    //   id: "month",
+    //   label: "Month",
+    //   component: TodoCalendarView,
+    //   getItemId: (viewModel) => viewModel.id,
+    //   renderItem: renderTodoItem,
+    //   config: { dateField: "dueDate" },
+    //   onAddItem: handleCalendarAddItem,
+    // },
+    // {
+    //   id: "week",
+    //   label: "Week",
+    //   component: TodoCalendarView,
+    //   getItemId: (viewModel) => viewModel.id,
+    //   renderItem: renderTodoItem,
+    //   config: { dateField: "dueDate" },
+    //   onAddItem: handleCalendarAddItem,
+    // },
+    // {
+    //   id: "day",
+    //   label: "Day",
+    //   component: TodoCalendarView,
+    //   getItemId: (viewModel) => viewModel.id,
+    //   renderItem: renderTodoItem,
+    //   config: { dateField: "dueDate" },
+    //   onAddItem: handleCalendarAddItem,
+    // },
     // {
     //   id: "gallery",
     //   label: "Gallery",

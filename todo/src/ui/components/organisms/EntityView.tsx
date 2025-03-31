@@ -9,9 +9,9 @@ export type EntityViewType =
   | "board"
   | "table"
   | "gallery"
-  | CalendarViewType;
+  | "calendar";
+// | CalendarViewType;
 
-// Generic Types (Less Domain Specific)
 export interface ViewConfig<T extends Entity, P = {}> {
   id: EntityViewType;
   label: string;
@@ -55,9 +55,9 @@ interface EntityViewProps<T extends Entity, P = {}> {
   currentView: EntityViewType;
   setCurrentView: (view: EntityViewType) => void;
   isFormOpen: boolean;
-  openForm: () => void; // More specific action
-  closeForm: () => void; // More specific action
-  editingItem: FormModel<T> | null; // The item being edited (or null)
+  openForm: () => void;
+  closeForm: () => void;
+  editingItem: FormModel<T> | null;
 }
 
 const Container = tw.div`
@@ -142,9 +142,9 @@ export function EntityView<T extends Entity, P = {}>({
 
   const updatedFormProps = useMemo(
     () => ({
-      initialValues: editingItem, // Use prop directly
+      initialValues: editingItem,
       onSubmit: handleFormSubmit,
-      onClose: handleCloseForm, // Use the passed-in prop
+      onClose: handleCloseForm,
     }),
     [editingItem, handleFormSubmit, handleCloseForm],
   );
@@ -166,16 +166,19 @@ export function EntityView<T extends Entity, P = {}>({
   }, [defaultViewConfigs, customViewConfigs]);
 
   const renderCurrentView = () => {
+    const viewToFind = ["month", "week", "day"].includes(currentView)
+      ? "calendar"
+      : currentView;
+
     const currentViewConfig = mergedViewConfigs.find(
-      (view) => view.id === currentView,
+      (view) => view.id === viewToFind,
     );
+
     if (!currentViewConfig) {
       return <div>Invalid view configuration</div>;
     }
     const { component: ViewComponent, config } = currentViewConfig;
 
-    // Use the view config's getItemId, onItemUpdate, onAddItem if provided,
-    // otherwise use the props passed to EntityView
     const viewGetItemId = currentViewConfig.getItemId || getItemId;
     const viewOnItemUpdate = currentViewConfig.onItemUpdate;
     const viewOnAddItem = currentViewConfig.onAddItem;
@@ -187,13 +190,9 @@ export function EntityView<T extends Entity, P = {}>({
       renderItem,
       onItemUpdate: viewOnItemUpdate,
       onAddItem: viewOnAddItem,
+      currentView,
+      setCurrentView,
     };
-    if (["month", "week", "day"].includes(currentView)) {
-      componentProps.currentView = currentView as CalendarViewType;
-      componentProps.setCurrentView = setCurrentView as (
-        view: CalendarViewType,
-      ) => void;
-    }
 
     return <ViewComponent {...componentProps} />;
   };
@@ -205,9 +204,18 @@ export function EntityView<T extends Entity, P = {}>({
         {mergedViewConfigs.map((view) => (
           <ToggleButton
             key={view.id}
-            $active={currentView === view.id}
+            $active={
+              currentView === view.id ||
+              // Also highlight calendar button when any calendar sub-view is active
+              (view.id === "calendar" &&
+                ["month", "week", "day"].includes(currentView))
+            }
             onClick={() => setCurrentView(view.id)}
-            aria-pressed={currentView === view.id}
+            aria-pressed={
+              view.id === currentView ||
+              (view.id === "calendar" &&
+                ["month", "week", "day"].includes(currentView))
+            }
           >
             {view.label}
           </ToggleButton>
