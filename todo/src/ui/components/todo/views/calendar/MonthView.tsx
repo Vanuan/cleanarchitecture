@@ -1,8 +1,8 @@
 import React from "react";
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 import { useMonthData, useCalendarNavigation } from "../calendar-hooks";
-import { format, isSameDay } from "date-fns";
-import { serializeDate } from "../../../../../lib/utils/date";
+import { format, isSameDay, isSameMonth } from "date-fns";
+import { now, serializeDate } from "../../../../../lib/utils/date";
 
 const MonthView: React.FC<{
   todos: TodoViewModel[];
@@ -17,6 +17,9 @@ const MonthView: React.FC<{
 }> = ({ todos, renderItem, onAddItem }) => {
   const { weeks } = useMonthData();
   const { currentDate, goToMonth } = useCalendarNavigation();
+  const today = now();
+  const todayMonth = today.getMonth();
+  const todayYear = today.getFullYear();
 
   const CalendarDay: React.FC<{
     day: {
@@ -113,9 +116,14 @@ const MonthView: React.FC<{
     const months = [];
     for (let i = -3; i <= 3; i++) {
       const monthDate = new Date(currentYear, currentMonth + i, 1);
-      const isPrevious = i === -1;
-      const isNext = i === 1;
-      const isCurrent = i === 0;
+      const isDisplayedMonth = i === 0;
+      const isRealCurrentMonth = isSameMonth(monthDate, today);
+      const monthPosition =
+        (monthDate.getFullYear() - todayYear) * 12 +
+        monthDate.getMonth() -
+        todayMonth;
+      const isPrevious = monthPosition === -1; // Month before current real month
+      const isNext = monthPosition === 1; // Month after current real month
 
       months.push({
         date: monthDate,
@@ -123,7 +131,8 @@ const MonthView: React.FC<{
         year: format(monthDate, "yyyy"),
         isPrevious,
         isNext,
-        isCurrent,
+        isDisplayedMonth,
+        isRealCurrentMonth,
       });
     }
 
@@ -139,30 +148,30 @@ const MonthView: React.FC<{
           <button
             key={index}
             className={`flex flex-col items-center py-3 transition-colors w-full ${
-              month.isCurrent ? "bg-blue-100" : "hover:bg-gray-50"
+              month.isDisplayedMonth ? "bg-blue-100" : "hover:bg-gray-50"
             }`}
             onClick={() => handleGoToMonth(month.date)}
           >
             <span
-              className={`text-xs font-medium ${month.isCurrent ? "text-blue-600" : "text-gray-500"}`}
+              className={`text-xs font-medium ${month.isDisplayedMonth ? "text-blue-600" : "text-gray-500"}`}
             >
               {month.year}
             </span>
             <span
-              className={`text-lg ${month.isCurrent ? "font-bold text-blue-700" : "font-medium text-gray-600"}`}
+              className={`text-lg ${month.isDisplayedMonth ? "font-bold text-blue-700" : "font-medium text-gray-600"}`}
             >
               {month.month}
             </span>
             {month.isPrevious && (
               <span className="text-xs text-gray-500 mt-1">Previous</span>
             )}
-            {month.isCurrent && (
-              <span className="text-xs text-blue-600 font-medium mt-1">
-                Current
-              </span>
-            )}
             {month.isNext && (
               <span className="text-xs text-gray-500 mt-1">Next</span>
+            )}
+            {month.isRealCurrentMonth && (
+              <span className="text-xs text-green-600 font-medium mt-1">
+                Today's Month
+              </span>
             )}
           </button>
         ))}
