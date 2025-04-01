@@ -53,17 +53,9 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
 
   // State for selected day
   const [selectedDay, setSelectedDay] = useState<Date>(currentDate);
-
-  // Reset selected day when the week changes
   useEffect(() => {
-    const today = new Date();
-    const dayInCurrentWeek = weekDays.find((day) => isSameDay(day, today));
-    if (dayInCurrentWeek) {
-      setSelectedDay(dayInCurrentWeek);
-    } else {
-      setSelectedDay(currentDate);
-    }
-  }, [currentDate, weekDays]);
+    setSelectedDay(currentDate);
+  }, [currentDate]);
 
   // Get todos for the selected day
   const todosForSelectedDay = useTodosForDate(selectedDay, todos);
