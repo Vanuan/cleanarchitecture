@@ -60,7 +60,7 @@ const WeekView: React.FC<WeekViewProps> = ({
   const nextWeekDiff = differenceInWeeks(nextWeekStart, todayWeekStart);
 
   // Determine labels based on relative position to today's week
-  const getCurrentWeekLabel = (diff) => {
+  const getCurrentWeekLabel = (diff: number) => {
     if (diff === 0) return "Today's Week";
     if (diff === -1) return "Last Week";
     if (diff === 1) return "Next Week";
