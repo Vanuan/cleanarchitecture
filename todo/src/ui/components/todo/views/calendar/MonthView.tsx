@@ -1,8 +1,9 @@
 import React from "react";
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 import { useMonthData, useCalendarNavigation } from "../calendar-hooks";
-import { format, isSameDay, isSameMonth } from "date-fns";
-import { now, serializeDate } from "../../../../../lib/utils/date";
+import { format, isSameDay } from "date-fns";
+import { cloneDate, now, serializeDate } from "../../../../../lib/utils/date";
+import { MonthNavigation } from "./AdaptiveNavigation";
 
 const MonthView: React.FC<{
   todos: TodoViewModel[];
@@ -18,8 +19,6 @@ const MonthView: React.FC<{
   const { weeks } = useMonthData();
   const { currentDate, goToMonth } = useCalendarNavigation();
   const today = now();
-  const todayMonth = today.getMonth();
-  const todayYear = today.getFullYear();
 
   const CalendarDay: React.FC<{
     day: {
@@ -47,16 +46,16 @@ const MonthView: React.FC<{
           acc.tasks += 1;
           return acc;
         },
-        { tasks: 0, completed: 0, total: 0 },
+        { tasks: 0, completed: 0, total: 0 }
       );
     };
 
     const stats = getTaskStats(todos);
-    const isToday = isSameDay(day.date, new Date());
+    const isToday = isSameDay(day.date, today);
 
     const handleAddTask = () => {
       if (onAddItem) {
-        const taskDate = new Date(day.date);
+        const taskDate = cloneDate(day.date);
         taskDate.setHours(0, 0, 0, 0);
         onAddItem({ dueDate: serializeDate(taskDate), isAllDay: true });
       }
@@ -108,80 +107,18 @@ const MonthView: React.FC<{
 
   const MemoizedCalendarDay = React.memo(CalendarDay);
 
-  const MonthNavigationHeader = () => {
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth();
-
-    // Generate 7 months centered around current month
-    const months = [];
-    for (let i = -3; i <= 3; i++) {
-      const monthDate = new Date(currentYear, currentMonth + i, 1);
-      const isDisplayedMonth = i === 0;
-      const isRealCurrentMonth = isSameMonth(monthDate, today);
-      const monthPosition =
-        (monthDate.getFullYear() - todayYear) * 12 +
-        monthDate.getMonth() -
-        todayMonth;
-      const isPrevious = monthPosition === -1; // Month before current real month
-      const isNext = monthPosition === 1; // Month after current real month
-
-      months.push({
-        date: monthDate,
-        month: format(monthDate, "MMM"),
-        year: format(monthDate, "yyyy"),
-        isPrevious,
-        isNext,
-        isDisplayedMonth,
-        isRealCurrentMonth,
-      });
-    }
-
-    const handleGoToMonth = (date: Date) => {
-      // Create a new date set to the 1st day of the target month
-      const newDate = new Date(date.getFullYear(), date.getMonth(), 1);
-      goToMonth(newDate.getMonth(), newDate.getFullYear());
-    };
-
-    return (
-      <div className="grid grid-cols-7 w-full border-b border-gray-200 bg-white sticky top-0 z-10 divide-x divide-gray-100">
-        {months.map((month, index) => (
-          <button
-            key={index}
-            className={`flex flex-col items-center py-3 transition-colors w-full ${
-              month.isDisplayedMonth ? "bg-blue-100" : "hover:bg-gray-50"
-            }`}
-            onClick={() => handleGoToMonth(month.date)}
-          >
-            <span
-              className={`text-xs font-medium ${month.isDisplayedMonth ? "text-blue-600" : "text-gray-500"}`}
-            >
-              {month.year}
-            </span>
-            <span
-              className={`text-lg ${month.isDisplayedMonth ? "font-bold text-blue-700" : "font-medium text-gray-600"}`}
-            >
-              {month.month}
-            </span>
-            {month.isPrevious && (
-              <span className="text-xs text-gray-500 mt-1">Previous</span>
-            )}
-            {month.isNext && (
-              <span className="text-xs text-gray-500 mt-1">Next</span>
-            )}
-            {month.isRealCurrentMonth && (
-              <span className="text-xs text-green-600 font-medium mt-1">
-                Today's Month
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-    );
+  // Handle date change from the selector
+  const handleDateChange = (date: Date) => {
+    goToMonth(date.getMonth(), date.getFullYear());
   };
 
   return (
     <div className="flex flex-col h-full">
-      <MonthNavigationHeader />
+      <MonthNavigation
+        currentDate={currentDate}
+        onDateChange={handleDateChange}
+        styleVariant="inverted"
+      />
       <div className="flex-1 overflow-y-auto">
         <div className="p-4">
           <div className="flex justify-end mb-2 text-xs">
@@ -205,7 +142,7 @@ const MonthView: React.FC<{
                   >
                     {day}
                   </div>
-                ),
+                )
               )}
             </div>
             <div className="bg-white">
@@ -222,6 +159,7 @@ const MonthView: React.FC<{
                           todoDate.getFullYear() === day.date.getFullYear()
                         );
                       } catch (error) {
+                        console.error("Error parsing date:", error);
                         return false;
                       }
                     });

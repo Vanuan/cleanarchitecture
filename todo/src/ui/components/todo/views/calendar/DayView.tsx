@@ -1,13 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  startOfWeek,
-  endOfWeek,
-  eachDayOfInterval,
   format,
-  isSameDay,
   isToday,
-  isTomorrow,
-  isYesterday,
   parseISO,
   setHours,
 } from "date-fns";
@@ -18,6 +12,8 @@ import {
   parseDateString,
   serializeDate,
 } from "../../../../../lib/utils/date";
+import { DayNavigation } from './AdaptiveNavigation';
+
 
 interface DayViewProps {
   todos: TodoViewModel[];
@@ -36,20 +32,8 @@ const START_HOUR = 6; // 6 AM
 const END_HOUR = 19; // 7 PM
 
 const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
-  const { currentDate } = useCalendarNavigation();
+  const { currentDate, setCurrentDate } = useCalendarNavigation();
 
-  // Calculate the date range for the week
-  const weekStart = useMemo(() => {
-    return startOfWeek(currentDate, { weekStartsOn: 1 });
-  }, [currentDate]);
-
-  const weekEnd = useMemo(() => {
-    return endOfWeek(currentDate, { weekStartsOn: 1 });
-  }, [currentDate]);
-
-  const weekDays = useMemo(() => {
-    return eachDayOfInterval({ start: weekStart, end: weekEnd });
-  }, [weekStart, weekEnd]);
 
   // State for selected day
   const [selectedDay, setSelectedDay] = useState<Date>(currentDate);
@@ -142,14 +126,11 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
         todo,
       };
     } catch (e) {
+      console.error("Error parsing date for time position:", e);
       return null;
     }
   };
 
-  // Handle day selection
-  const handleDaySelect = (day: Date) => {
-    setSelectedDay(day);
-  };
 
   // Handle adding an all-day task
   const handleAddAllDayTask = () => {
@@ -181,48 +162,11 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
-      {/* Day selector */}
-      <div className="grid grid-cols-7 w-full border-b border-gray-200 bg-white sticky top-0 z-10 divide-x divide-gray-100">
-        {weekDays.map((day) => {
-          const isDayYesterday = isYesterday(day);
-          const isDayTomorrow = isTomorrow(day);
-          const isDaySelected = isSameDay(day, selectedDay);
-          const isDayToday = isToday(day);
-
-          return (
-            <button
-              key={day.toISOString()}
-              className={`flex flex-col items-center py-3 transition-colors w-full
-                ${isDaySelected ? "bg-blue-100" : "hover:bg-gray-50"}`}
-              onClick={() => handleDaySelect(day)}
-            >
-              <span
-                className={`text-xs font-medium ${isDaySelected ? "text-blue-600" : "text-gray-500"}`}
-              >
-                {format(day, "EEE")}
-              </span>
-              <span
-                className={`text-lg ${isDaySelected ? "font-bold text-blue-600" : ""}`}
-              >
-                {format(day, "d")}
-              </span>
-              {isDayToday && (
-                <span
-                  className={`text-xs ${isDaySelected ? "text-blue-600" : "text-gray-500"} font-medium mt-1`}
-                >
-                  Today
-                </span>
-              )}
-              {isDayYesterday && (
-                <span className="text-xs text-gray-500 mt-1">Yesterday</span>
-              )}
-              {isDayTomorrow && (
-                <span className="text-xs text-gray-500 mt-1">Tomorrow</span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <DayNavigation 
+        currentDate={currentDate}
+        onDateChange={setCurrentDate}
+        styleVariant="inverted"
+      />
 
       <div className="flex-1 overflow-y-auto">
         {/* All-day tasks section */}

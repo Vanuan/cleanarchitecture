@@ -13,7 +13,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ServiceContext.Provider value={todoService}>
-        <div style={{ maxWidth: "600px", margin: "0 auto", padding: "20px" }}>
+        <div style={{ maxWidth: "600px", margin: "0 auto" }}>
           <h1 style={{ textAlign: "center" }}>Todo App</h1>
           <TodosView />
         </div>

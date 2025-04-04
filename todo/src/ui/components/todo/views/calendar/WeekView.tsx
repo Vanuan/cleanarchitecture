@@ -7,14 +7,11 @@ import {
   startOfWeek,
   endOfWeek,
   eachDayOfInterval,
-  addWeeks,
-  subWeeks,
-  getWeek,
-  differenceInWeeks,
 } from "date-fns";
 import { useCalendarNavigation, useTodosForDate } from "../calendar-hooks";
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 import { serializeDate } from "../../../../../lib/utils/date";
+import { WeekNavigation } from "./AdaptiveNavigation";
 
 interface WeekViewProps {
   todos: TodoViewModel[];
@@ -34,96 +31,19 @@ const WeekView: React.FC<WeekViewProps> = ({
   onAddItem,
 }) => {
   const { currentDate, setCurrentDate } = useCalendarNavigation();
-  const today = new Date();
 
   // Calculate the current displayed week
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-  // Get week number and date range for display
-  const weekNumber = getWeek(currentDate);
-  const weekRangeText = `${format(weekStart, "MMM d")}-${format(weekEnd, "d, yyyy")}`;
-
-  // Calculate today's real week
-  const todayWeekStart = startOfWeek(today, { weekStartsOn: 1 });
-
-  // Calculate previous and next weeks
-  const prevWeekStart = subWeeks(weekStart, 1);
-  const nextWeekStart = addWeeks(weekStart, 1);
-  const prevWeekNumber = getWeek(prevWeekStart);
-  const nextWeekNumber = getWeek(nextWeekStart);
-
-  // Calculate week differences relative to today's week
-  const currentWeekDiff = differenceInWeeks(weekStart, todayWeekStart);
-  const prevWeekDiff = differenceInWeeks(prevWeekStart, todayWeekStart);
-  const nextWeekDiff = differenceInWeeks(nextWeekStart, todayWeekStart);
-
-  // Determine labels based on relative position to today's week
-  const getCurrentWeekLabel = (diff: number) => {
-    if (diff === 0) return "Today's Week";
-    if (diff === -1) return "Last Week";
-    if (diff === 1) return "Next Week";
-    return null;
-  };
-
-  const handlePrevWeek = () => setCurrentDate(prevWeekStart);
-  const handleNextWeek = () => setCurrentDate(nextWeekStart);
-
   return (
     <div className="flex flex-col h-full">
-      <div className="grid grid-cols-3 bg-white border-b border-gray-200">
-        {/* Previous Week Button */}
-        <button
-          onClick={handlePrevWeek}
-          className="flex flex-col items-center py-4 hover:bg-gray-50 border-r border-gray-200"
-        >
-          {getCurrentWeekLabel(prevWeekDiff) && (
-            <span
-              className={`text-xs ${prevWeekDiff === 0 ? "text-green-600 font-medium" : "text-gray-500"} mt-1`}
-            >
-              {getCurrentWeekLabel(prevWeekDiff)}
-            </span>
-          )}
-          <span className="text-base font-medium">Week {prevWeekNumber}</span>
-          <span className="text-sm text-gray-500">
-            {format(prevWeekStart, "MMM d")}-
-            {format(endOfWeek(prevWeekStart, { weekStartsOn: 1 }), "d")}
-          </span>
-        </button>
-        {/* Current Displayed Week */}
-        <div className="flex flex-col items-center justify-center py-4 bg-blue-50">
-          {getCurrentWeekLabel(currentWeekDiff) && (
-            <span
-              className={`text-xs ${currentWeekDiff === 0 ? "text-green-600 font-medium" : "text-gray-500"} mt-1`}
-            >
-              {getCurrentWeekLabel(currentWeekDiff)}
-            </span>
-          )}
-          <span className="text-base font-semibold text-blue-700">
-            Week {weekNumber}
-          </span>
-          <span className="text-sm text-blue-600">{weekRangeText}</span>
-        </div>
-        {/* Next Week Button */}
-        <button
-          onClick={handleNextWeek}
-          className="flex flex-col items-center py-4 hover:bg-gray-50 border-l border-gray-200"
-        >
-          {getCurrentWeekLabel(nextWeekDiff) && (
-            <span
-              className={`text-xs ${nextWeekDiff === 0 ? "text-green-600 font-medium" : "text-gray-500"} mt-1`}
-            >
-              {getCurrentWeekLabel(nextWeekDiff)}
-            </span>
-          )}
-          <span className="text-base font-medium">Week {nextWeekNumber}</span>
-          <span className="text-sm text-gray-500">
-            {format(nextWeekStart, "MMM d")}-
-            {format(endOfWeek(nextWeekStart, { weekStartsOn: 1 }), "d")}
-          </span>
-        </button>
-      </div>
+      <WeekNavigation
+        currentDate={currentDate}
+        onDateChange={setCurrentDate}
+        styleVariant="inverted"
+      />
 
       {/* Scrollable Week Agenda */}
       <div className="flex-1 overflow-y-auto">
@@ -171,8 +91,8 @@ const DaySection: React.FC<DaySectionProps> = ({
   const bgColor = isDayToday
     ? "bg-blue-50"
     : dayTodos.length === 0
-      ? "bg-gray-50"
-      : "";
+    ? "bg-gray-50"
+    : "";
 
   const handleAddItem = () => {
     if (onAddItem) {
@@ -189,7 +109,9 @@ const DaySection: React.FC<DaySectionProps> = ({
           {format(day, "EEEE")}
         </span>
         <span
-          className={`text-sm ${isDayToday ? "text-blue-600" : "text-gray-500"} ml-2`}
+          className={`text-sm ${
+            isDayToday ? "text-blue-600" : "text-gray-500"
+          } ml-2`}
         >
           {format(day, "MMMM d, yyyy")}
         </span>
