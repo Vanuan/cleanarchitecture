@@ -5,7 +5,7 @@ import {
   isToday,
   isYesterday,
   isTomorrow,
-} from "./date-utils";
+} from "../date-utils";
 
 export const DayNavigationService: NavigationConfig = {
   generateItems(currentDate: Date): INavigationItem[] {

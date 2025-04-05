@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect, memo } from "react";
-import { NavigationConfig, INavigationItem } from "./types";
 import {
   DayNavigationService,
-  MonthNavigationService,
   WeekNavigationService,
-} from "./navigation-services";
+  MonthNavigationService,
+  NavigationConfig,
+  INavigationItem,
+} from "../services";
 
 // Helper function to determine visible count based on window width
 const getVisibleCountFromWidth = (width: number): number => {
@@ -28,13 +29,6 @@ const getInitialVisibleCount = (): number => {
   // Default fallback for SSR
   return 5;
 };
-
-interface AdaptiveNavigationProps {
-  currentDate: Date;
-  onDateChange: (date: Date) => void;
-  config: NavigationConfig;
-  styleVariant?: "default" | "minimal" | "colorful" | "inverted";
-}
 
 // Memoized Navigation Item component
 const NavigationItem = memo(
@@ -183,7 +177,14 @@ const RightArrow = memo(() => (
   </svg>
 ));
 
-export const AdaptiveNavigation: React.FC<AdaptiveNavigationProps> = ({
+interface AdaptiveNavigationProps {
+  currentDate: Date;
+  onDateChange: (date: Date) => void;
+  config: NavigationConfig;
+  styleVariant?: "default" | "minimal" | "colorful" | "inverted";
+}
+
+const AdaptiveNavigation: React.FC<AdaptiveNavigationProps> = ({
   currentDate,
   onDateChange,
   config,

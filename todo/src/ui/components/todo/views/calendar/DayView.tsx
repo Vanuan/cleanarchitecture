@@ -12,7 +12,7 @@ import {
   parseDateString,
   serializeDate,
 } from "../../../../../lib/utils/date";
-import { DayNavigation } from './AdaptiveNavigation';
+import { DayNavigation } from './organisms/AdaptiveNavigation';
 
 
 interface DayViewProps {

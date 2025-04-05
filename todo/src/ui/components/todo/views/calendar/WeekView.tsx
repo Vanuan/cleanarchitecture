@@ -11,7 +11,7 @@ import {
 import { useCalendarNavigation, useTodosForDate } from "../calendar-hooks";
 import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 import { serializeDate } from "../../../../../lib/utils/date";
-import { WeekNavigation } from "./AdaptiveNavigation";
+import { WeekNavigation } from "./organisms/AdaptiveNavigation";
 
 interface WeekViewProps {
   todos: TodoViewModel[];

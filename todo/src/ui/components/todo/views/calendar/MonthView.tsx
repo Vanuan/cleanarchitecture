@@ -3,7 +3,7 @@ import { TodoViewModel } from "../../../../viewmodels/TodoViewModel";
 import { useMonthData, useCalendarNavigation } from "../calendar-hooks";
 import { format, isSameDay } from "date-fns";
 import { cloneDate, now, serializeDate } from "../../../../../lib/utils/date";
-import { MonthNavigation } from "./AdaptiveNavigation";
+import { MonthNavigation } from "./organisms/AdaptiveNavigation";
 
 const MonthView: React.FC<{
   todos: TodoViewModel[];
