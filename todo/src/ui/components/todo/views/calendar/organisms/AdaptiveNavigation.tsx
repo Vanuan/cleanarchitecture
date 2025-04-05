@@ -4,8 +4,8 @@ import {
   WeekNavigationService,
   MonthNavigationService,
   NavigationConfig,
-  INavigationItem,
 } from "../services";
+import { DateNavigationSelector } from "./DateNavigationSelector";
 
 // Helper function to determine visible count based on window width
 const getVisibleCountFromWidth = (width: number): number => {
@@ -29,118 +29,6 @@ const getInitialVisibleCount = (): number => {
   // Default fallback for SSR
   return 5;
 };
-
-// Memoized Navigation Item component
-const NavigationItem = memo(
-  ({
-    item,
-    onDateChange,
-    variant = "default",
-  }: {
-    item: INavigationItem;
-    onDateChange: (date: Date) => void;
-    variant?: string;
-  }) => {
-    // Pre-compute class names based on the item state and variant
-    const getItemClasses = () => {
-      const baseClasses =
-        "flex-1 flex flex-col items-center p-3 transition-colors";
-
-      switch (variant) {
-        case "minimal":
-          return `${baseClasses} ${
-            item.isSelected
-              ? "border-b-2 border-black text-black"
-              : "border-b-2 border-transparent text-gray-500 hover:text-gray-700"
-          }`;
-        case "colorful":
-          return `${baseClasses} ${
-            item.isSelected
-              ? "bg-white bg-opacity-30 text-white font-bold"
-              : "hover:bg-white hover:bg-opacity-20 text-white"
-          }`;
-        case "inverted":
-          return `${baseClasses} ${
-            item.isSelected
-              ? "bg-gradient-to-r from-blue-50 to-emerald-50 border-b-2 border-emerald-400"
-              : "hover:bg-gray-50"
-          }`;
-        default: // default style
-          return `${baseClasses} ${
-            item.isSelected
-              ? "bg-blue-100 text-blue-700"
-              : "hover:bg-gray-50 active:bg-gray-100 text-gray-600"
-          }`;
-      }
-    };
-
-    const getUpperLabelClasses = () => {
-      switch (variant) {
-        case "minimal":
-          return "text-xs font-medium";
-        case "colorful":
-          return "text-xs font-medium text-white";
-        case "inverted":
-          return "text-xs font-medium text-gray-500";
-        default:
-          return "text-xs font-medium text-gray-500";
-      }
-    };
-
-    const getMainLabelClasses = () => {
-      const baseClasses = "text-lg";
-
-      if (variant === "inverted") {
-        return `${baseClasses} ${
-          item.isSelected
-            ? "font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-600"
-            : "font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-emerald-500"
-        }`;
-      }
-
-      return `${baseClasses} ${item.isSelected ? "font-bold" : "font-medium"}`;
-    };
-
-    const getLowerLabelClasses = () => {
-      switch (variant) {
-        case "minimal":
-          return `text-xs ${
-            item.isToday ? "text-blue-600 font-medium" : "text-gray-500"
-          } mt-1`;
-        case "colorful":
-          return `text-xs ${
-            item.isToday ? "text-white font-bold" : "text-white"
-          } mt-1`;
-        case "inverted":
-          return `text-xs ${
-            item.isToday
-              ? "font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-emerald-500"
-              : "text-gray-400"
-          } mt-1`;
-        default:
-          return `text-xs ${
-            item.isToday ? "text-green-600 font-medium" : "text-gray-500"
-          } mt-1`;
-      }
-    };
-
-    // Memoize the handler to prevent unnecessary re-renders
-    const handleClick = useMemo(
-      () => () => onDateChange(item.date),
-      [onDateChange, item.date]
-    );
-
-    return (
-      <button className={getItemClasses()} onClick={handleClick}>
-        <span className={getUpperLabelClasses()}>{item.upperLabel}</span>
-        <span className={getMainLabelClasses()}>{item.mainLabel}</span>
-        {item.lowerLabel && (
-          <span className={getLowerLabelClasses()}>{item.lowerLabel}</span>
-        )}
-      </button>
-    );
-  }
-);
 
 // SVG components for better performance
 const LeftArrow = memo(() => (
@@ -219,6 +107,17 @@ const AdaptiveNavigation: React.FC<AdaptiveNavigationProps> = ({
     [currentDate, config]
   );
 
+  // Determine the longest label based on the navigation type
+  const longestLabel = useMemo(() => {
+    if (config === DayNavigationService) {
+      return "Yesterday"; // Longest possible day label
+    } else if (config === WeekNavigationService) {
+      return "This Week"; // Longest possible week label
+    } else {
+      return "This Month"; // Longest possible month label
+    }
+  }, [config]);
+
   // Memoize visible items to avoid slicing on every render
   // But ensure the selected day stays centered
   const visibleItems = useMemo(() => {
@@ -260,7 +159,7 @@ const AdaptiveNavigation: React.FC<AdaptiveNavigationProps> = ({
   return (
     <div className="relative">
       <div
-        className={`flex items-center ${
+        className={`flex items-stretch ${
           styleVariant === "minimal"
             ? "bg-white"
             : styleVariant === "colorful"
@@ -301,19 +200,12 @@ const AdaptiveNavigation: React.FC<AdaptiveNavigationProps> = ({
           ></div>
         </div>
 
-        {/* Items Container */}
-        <div className="flex-1 overflow-x-auto">
-          <div className="flex justify-between">
-            {visibleItems.map((item) => (
-              <NavigationItem
-                key={item.key}
-                item={item}
-                onDateChange={onDateChange}
-                variant={styleVariant}
-              />
-            ))}
-          </div>
-        </div>
+        <DateNavigationSelector
+          visibleItems={visibleItems}
+          onDateChange={onDateChange}
+          styleVariant={styleVariant}
+          longestLabel={longestLabel}
+        />
 
         {/* Next Button */}
         <div className="flex items-center">

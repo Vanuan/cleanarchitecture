@@ -71,7 +71,7 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
       currentView={calendarViewType}
       setCurrentView={handleSetCalendarView}
     >
-      <div className="flex flex-col h-full border border-gray-200 rounded-lg overflow-hidden">
+      <>
         <CalendarHeader />
         <div className="flex-1 overflow-y-auto">
           <CalendarContent
@@ -106,7 +106,7 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
             </svg>
           </button>
         )}
-      </div>
+      </>
     </CalendarProvider>
   );
 };
