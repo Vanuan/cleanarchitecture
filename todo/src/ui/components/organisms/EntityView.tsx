@@ -12,14 +12,14 @@ export type EntityViewType =
   | "calendar"
   | CalendarViewType;
 
-export interface ViewConfig<T extends Entity, P = {}> {
+export interface ViewConfig<T extends Entity, P = object> {
   id: EntityViewType;
   label: string;
   component: React.ComponentType<{
     items: T[];
     config: P;
     getItemId: (item: T) => string;
-    onItemUpdate?: (id: string, newValue: any) => void;
+    onItemUpdate?: (id: string, newValue: unknown) => void;
     renderItem: (item: T) => React.ReactNode;
     onAddItem?: (item: Partial<T>) => void;
     setCurrentView: (v: EntityViewType) => void;
@@ -27,34 +27,30 @@ export interface ViewConfig<T extends Entity, P = {}> {
   }>;
   config?: P;
   getItemId?: (item: T) => string;
-  onItemUpdate?: (id: string, newValue: any) => void;
+  onItemUpdate?: (id: string, newValue: unknown) => void;
   onAddItem?: (item: Partial<T>) => void;
   renderItem: (item: T) => React.ReactNode;
 }
 
 export type FormModel<T> = Partial<T>;
 
-interface EntityViewProps<T extends Entity, P = {}> {
+interface EntityViewProps<T extends Entity, P = object> {
   items: T[];
   defaultViewConfigs: ViewConfig<T, P>[];
   customViewConfigs?: ViewConfig<T, P>[];
   getItemId: (item: T) => string;
   EntityForm: React.ComponentType<{
     onClose: () => void;
-    onSubmit?: (data: any) => void;
-    initialValues?: any;
+    onSubmit?: (data: unknown) => void;
+    initialValues?: unknown;
   }>;
   onUpdateItem: (id: string, updates: Partial<T>) => void;
   onCreateItem: (newItem: Omit<T, "id" | "createdAt" | "updatedAt">) => void;
-  addButtonText?: string;
   isLoading?: boolean;
   renderItem: (item: T) => React.ReactNode;
-
-  // --- UI State Props ---
   currentView: EntityViewType;
   setCurrentView: (view: EntityViewType) => void;
   isFormOpen: boolean;
-  openForm: () => void;
   closeForm: () => void;
   editingItem: FormModel<T> | null;
 }
@@ -63,28 +59,13 @@ const Container = tw.div`
   w-full max-w-4xl mx-auto
 `;
 
-const ViewToggle = tw.div`
-  flex justify-end mb-4 gap-2
-`;
-
-const ToggleButton = tw.button<{ $active?: boolean }>`
-  px-4 py-2 rounded-md transition-colors duration-200
-  ${({ $active }) =>
-    $active ? "bg-blue-100 text-blue-600" : "text-gray-600 hover:bg-gray-100"}
-`;
-
-const AddButton = tw.button`
-  inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-500
-  text-white hover:bg-blue-600 transition-colors
-`;
-
 const ModalBackdrop = tw.div`
   fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center p-4 z-50
 `;
 
 const ModalContainer = tw.div`p-6 w-full max-w-lg relative`;
 
-export function EntityView<T extends Entity, P = {}>({
+export function EntityView<T extends Entity, P = object>({
   items,
   defaultViewConfigs,
   customViewConfigs,
@@ -92,13 +73,11 @@ export function EntityView<T extends Entity, P = {}>({
   EntityForm,
   onUpdateItem,
   onCreateItem,
-  addButtonText = "Add Entity",
   isLoading = false,
   renderItem,
   currentView,
   setCurrentView,
   isFormOpen,
-  openForm,
   closeForm,
   editingItem,
 }: EntityViewProps<T, P>) {
@@ -117,7 +96,6 @@ export function EntityView<T extends Entity, P = {}>({
     [handleCloseForm],
   );
 
-  // escape key handling
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isFormOpen) handleCloseForm();
@@ -127,9 +105,8 @@ export function EntityView<T extends Entity, P = {}>({
   }, [handleCloseForm, isFormOpen]);
 
   const handleFormSubmit = useCallback(
-    (data: FormModel<T>) => {
+    (data: unknown) => {
       if (editingItem?.id) {
-        // Check if editingItem exists and has an id
         onUpdateItem(editingItem.id as string, data as Partial<T>);
       } else {
         onCreateItem(data as Omit<T, "id" | "createdAt" | "updatedAt">);
@@ -182,7 +159,7 @@ export function EntityView<T extends Entity, P = {}>({
     const viewOnItemUpdate = currentViewConfig.onItemUpdate;
     const viewOnAddItem = currentViewConfig.onAddItem;
 
-    const componentProps: any = {
+    const componentProps = {
       items: items,
       config: config as P,
       getItemId: viewGetItemId || getItemId,
@@ -198,29 +175,6 @@ export function EntityView<T extends Entity, P = {}>({
 
   return (
     <Container>
-      <ViewToggle>
-        <AddButton onClick={openForm}>{addButtonText}</AddButton>
-        {mergedViewConfigs.map((view) => (
-          <ToggleButton
-            key={view.id}
-            $active={
-              currentView === view.id ||
-              // Also highlight calendar button when any calendar sub-view is active
-              (view.id === "calendar" &&
-                ["month", "week", "day"].includes(currentView))
-            }
-            onClick={() => setCurrentView(view.id)}
-            aria-pressed={
-              view.id === currentView ||
-              (view.id === "calendar" &&
-                ["month", "week", "day"].includes(currentView))
-            }
-          >
-            {view.label}
-          </ToggleButton>
-        ))}
-      </ViewToggle>
-
       {isFormOpen &&
         createPortal(
           <ModalBackdrop onClick={handleBackdropClick}>

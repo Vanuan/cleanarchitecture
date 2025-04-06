@@ -18,6 +18,7 @@ import { LoadingState, Spinner } from "./styles";
 import { useCallback, useEffect } from "react";
 import { parseDateString } from "../../../lib/utils/date";
 import useUiStore from "./store/uiStore";
+
 const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
   id: todo.id,
   title: todo.title,
@@ -44,11 +45,6 @@ export function TodosView() {
   const setIsFormOpen = useUiStore((state) => state.setIsFormOpen);
   const editingTodoViewModel = useUiStore((state) => state.editingTodo);
   const setEditingTodoViewModel = useUiStore((state) => state.setEditingTodo);
-
-  const openForm = useCallback(() => {
-    setEditingTodoViewModel(null);
-    setIsFormOpen(true);
-  }, [setIsFormOpen, setEditingTodoViewModel]);
 
   const closeForm = useCallback(() => {
     setIsFormOpen(false);
@@ -166,7 +162,7 @@ export function TodosView() {
   }
 
   // how to render a Todo
-  const defaultViewConfigs: ViewConfig<TodoViewModel, any>[] = [
+  const defaultViewConfigs: ViewConfig<TodoViewModel, object>[] = [
     {
       id: "list",
       label: "List",
@@ -251,16 +247,18 @@ export function TodosView() {
       items={todoViewModels}
       defaultViewConfigs={defaultViewConfigs}
       getItemId={(viewModel) => viewModel.id}
-      EntityForm={TodoForm}
+      EntityForm={TodoForm as React.ComponentType<{
+        onClose: () => void;
+        onSubmit?: (data: unknown) => void;
+        initialValues?: unknown;
+      }>}
       onUpdateItem={handleUpdateTodo}
       onCreateItem={handleCreateTodo}
-      addButtonText="Add Todo"
       isLoading={isLoading}
       renderItem={renderTodoItem}
       currentView={currentView}
       setCurrentView={setCurrentView}
       isFormOpen={isFormOpen}
-      openForm={openForm}
       closeForm={closeForm}
       editingItem={editingTodoViewModel}
     />
