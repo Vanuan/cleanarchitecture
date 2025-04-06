@@ -9,8 +9,8 @@ import { DateNavigationSelector } from "./DateNavigationSelector";
 
 // Helper function to determine visible count based on window width
 const getVisibleCountFromWidth = (width: number): number => {
-  if (width < 375) {
-    // Smallest screens
+  if (width < 430) {
+    // Smallest screens (adjusted breakpoint)
     return 3;
   } else if (width < 640) {
     // Small screens
