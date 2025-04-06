@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import tw from "tailwind-styled-components";
 import { EntityViewType } from "./EntityView";
 import { Menu, Plus } from "lucide-react";
