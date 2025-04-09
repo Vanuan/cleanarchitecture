@@ -18,7 +18,6 @@ import { LoadingState, Spinner } from "./styles";
 import { useCallback, useEffect } from "react";
 import { parseDateString } from "../../../lib/utils/date";
 import useUiStore from "./store/uiStore";
-import { CalendarViewType } from "./views/calendar-hooks";
 
 const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
   id: todo.id,

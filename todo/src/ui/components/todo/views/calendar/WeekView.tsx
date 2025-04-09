@@ -19,6 +19,7 @@ import {
   getDayNameClasses,
   getDayDateClasses,
   getBadgeClasses,
+  WeekViewStyleProps,
 } from "./atoms/weekViewStyles";
 
 interface WeekViewProps {

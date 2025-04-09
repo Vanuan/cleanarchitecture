@@ -33,7 +33,6 @@ interface BoardProps<T extends Task> {
 // Define your data types
 interface Task extends BaseItem {
   title: string;
-  status: "todo" | "done";
 }
 
 // Define custom props for your components
@@ -140,7 +139,7 @@ function TaskBoard<T>({ renderItem, items, columns, onItemUpdate } : {
   });
 
   const handleSetColumnId = (item: Task, columnId: string) => {
-    const updatedItem = { ...item, status: columnId as Task["status"] };
+    const updatedItem = { ...item };
     if (onItemUpdate) {
       onItemUpdate(item.id, columnId);
     }
