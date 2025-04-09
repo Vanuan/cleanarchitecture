@@ -1,4 +1,5 @@
-import { format, parseISO } from "date-fns";
+import { format, parseISO, isSameDay, parse, startOfDay, differenceInDays } from "date-fns";
+import { default_api } from "../../../../../tools/default_api";
 
 export const now = () => {
   return new Date();
@@ -55,4 +56,29 @@ export const formatTimeAsFormValue = (
 
 export const formatDateAsFullDayDisplay = (date: Date | undefined) => {
   return formatDate(date, "MMM dd, yyyy");
+};
+
+const SHORT_DATE_FORMAT = 'MMM d, yyyy';
+
+export const formatDateAsShortDate = (date?: Date): string => {
+  if (!date) return "";
+  try {
+    return format(date, SHORT_DATE_FORMAT);
+  } catch (e) {
+    console.error("Error formatting date:", e);
+    return "Invalid Date";
+  }
+};
+
+export const isDateWithinDays = (date: Date, days: number): boolean => {
+  if (!date) return false;
+  try {
+    const today = startOfDay(now());
+    const targetDate = startOfDay(date);
+    const diff = differenceInDays(targetDate, today);
+    return diff >= 0 && diff <= days;
+  } catch (e) {
+    console.error("Error comparing dates:", e);
+    return false;
+  }
 };

@@ -3,7 +3,7 @@ import { TodosView } from "./ui/components/todo/TodosView";
 import { TodoService } from "./application/usecases/todo.service";
 import { LocalStorageTodoRepository } from "./infrastructure/repositories/localstorage.todo.repository";
 import { ServiceContext } from "./ui/hooks/useService";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MainLayout } from "./ui/components/layouts/MainLayout";
 import { EntityViewType } from "./ui/components/organisms/EntityView";
 import useUiStore from "./ui/components/todo/store/uiStore";
@@ -18,6 +18,11 @@ function App() {
   const setCurrentView = useUiStore((state) => state.setCurrentView);
   const setIsFormOpen = useUiStore((state) => state.setIsFormOpen);
   const setEditingTodo = useUiStore((state) => state.setEditingTodo);
+  const setStyleVariant = useUiStore((state) => state.setStyleVariant);
+
+  useEffect(() => {
+    setStyleVariant("inverted");
+  }, [setStyleVariant]);
 
   const handleAddClick = () => {
     setEditingTodo(null); // Reset any existing editing state

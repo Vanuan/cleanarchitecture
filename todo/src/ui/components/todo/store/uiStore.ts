@@ -13,6 +13,9 @@ interface UiState {
 
   calendarViewType: CalendarViewType;
   setCalendarViewType: (view: CalendarViewType) => void;
+
+  styleVariant: 'inverted' | 'default';
+  setStyleVariant: (variant: 'inverted' | 'default') => void;
 }
 
 const useUiStore = create<UiState>((set) => ({
@@ -25,6 +28,9 @@ const useUiStore = create<UiState>((set) => ({
 
   calendarViewType: "month",
   setCalendarViewType: (view) => set({ calendarViewType: view }),
+
+  styleVariant: "default",
+  setStyleVariant: (variant) => set({ styleVariant: variant }),
 }));
 
 export default useUiStore;

@@ -1,13 +1,7 @@
 import { useUpdateTodo, useDeleteTodo } from "../../hooks/useTodos";
 import { TodoViewModel } from "../../viewmodels/TodoViewModel";
 import {
-  TodoCard,
-  TodoToggleButton,
   TodoTitle,
-  TodoStatusBadge,
-  TodoTag,
-  TodoDeleteButton,
-  TodoEditButton,
   TodoItemLayout,
   TodoContentArea,
   TagsContainer,
@@ -15,15 +9,30 @@ import {
 import {
   TodoCheckIcon,
   TodoCircleIcon,
-  TodoTagIcon,
   DeleteIcon,
   EditIcon,
 } from "./icons";
 import {
-  formatDateAsFullDayDisplay,
   parseDateString,
+  isDateWithinDays,
+  formatDateAsShortDate,
 } from "../../../lib/utils/date";
 import { EntityViewType } from "../organisms/EntityView";
+import {
+  BoardItemCard,
+  BoardTag,
+  BoardDueDateTag,
+  BoardEditButton,
+  BoardDeleteButton,
+} from "./styles";
+import {
+  BoardCheckIcon,
+  BoardCircleIcon,
+  BoardTagIcon,
+  BoardClockIcon,
+  BoardEditIcon,
+  BoardDeleteIcon,
+} from "./icons";
 
 interface Props {
   viewModel: TodoViewModel;
@@ -50,11 +59,79 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
     onEdit(viewModel);
   };
 
+  const isDueSoon = () => {
+    if (!viewModel.dueDate) return false;
+    const dueDate = parseDateString(viewModel.dueDate);
+    return dueDate ? isDateWithinDays(dueDate, 2) : false;
+  };
+
+  if (viewType === "board" || viewType === "list" || viewType === "week" || viewType === "day") {
+    return (
+      <BoardItemCard $completed={viewModel.completed}>
+        <TodoItemLayout>
+          <button
+            className={`mt-1 transition-colors ${
+              viewModel.completed
+                ? "text-emerald-500 hover:text-emerald-600"
+                : "text-gray-400 hover:text-blue-500"
+            }`}
+            onClick={handleCompleteToggle}
+            aria-label={
+              viewModel.completed ? "Mark as incomplete" : "Mark as complete"
+            }
+          >
+            {viewModel.completed ? <BoardCheckIcon /> : <BoardCircleIcon />}
+          </button>
+
+          <TodoContentArea>
+            <TodoTitle $completed={viewModel.completed}>
+              {viewModel.title}
+            </TodoTitle>
+            <TagsContainer>
+              {viewModel.tags && viewModel.tags.length > 0 && (
+                <>
+                  {viewModel.tags.map((tag, i) => {
+                    const tagType = tag.toLowerCase() === 'todo' ? 'todo' : tag.toLowerCase() === 'done' ? 'done' : 'other';
+                    return (
+                      <BoardTag key={`${viewModel.id}-tag-${i}`} $tagType={tagType}>
+                        <BoardTagIcon />
+                        {tag}
+                      </BoardTag>
+                    );
+                  })}
+                </>
+              )}
+              {viewModel.dueDate && (
+                <BoardDueDateTag $isDueSoon={isDueSoon() && !viewModel.completed}>
+                  <BoardClockIcon />
+                  {formatDateAsShortDate(parseDateString(viewModel.dueDate))}
+                </BoardDueDateTag>
+              )}
+            </TagsContainer>
+          </TodoContentArea>
+
+          <div className="flex space-x-1">
+            <BoardEditButton onClick={handleEdit} aria-label="Edit task">
+              <BoardEditIcon />
+            </BoardEditButton>
+            <BoardDeleteButton onClick={handleDelete} aria-label="Delete task">
+              <BoardDeleteIcon />
+            </BoardDeleteButton>
+          </div>
+        </TodoItemLayout>
+      </BoardItemCard>
+    );
+  }
+
   if (viewType === "table") {
     return (
       <>
-        <TodoToggleButton
-          $completed={viewModel.completed}
+        <button
+          className={`mt-1 transition-colors ${
+            viewModel.completed
+              ? "text-green-500 hover:text-green-600"
+              : "text-gray-400 hover:text-blue-500"
+          }`}
           onClick={handleCompleteToggle}
         >
           {viewModel.completed ? (
@@ -62,13 +139,13 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
           ) : (
             <TodoCircleIcon $completed={viewModel.completed} />
           )}
-        </TodoToggleButton>
-        <TodoDeleteButton onClick={handleDelete}>
+        </button>
+        <button onClick={handleDelete}>
           <DeleteIcon />
-        </TodoDeleteButton>
-        <TodoEditButton onClick={handleEdit}>
+        </button>
+        <button onClick={handleEdit}>
           <EditIcon />
-        </TodoEditButton>
+        </button>
       </>
     );
   }
@@ -92,142 +169,6 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
     );
   }
 
-  if (viewType === "week") {
-    return (
-      <div className="p-3 rounded-lg border border-gray-200 hover:shadow-sm transition-shadow">
-        <div className="flex items-start">
-          <TodoToggleButton
-            $completed={viewModel.completed}
-            onClick={handleCompleteToggle}
-          >
-            {viewModel.completed ? (
-              <TodoCheckIcon $completed={viewModel.completed} />
-            ) : (
-              <TodoCircleIcon $completed={viewModel.completed} />
-            )}
-          </TodoToggleButton>
-
-          <TodoContentArea>
-            <TodoTitle $completed={viewModel.completed}>
-              {viewModel.title}
-            </TodoTitle>
-            <TagsContainer>
-              <TodoTagIcon />
-              <TodoStatusBadge $completed={viewModel.completed}>
-                {viewModel.displayStatus}
-              </TodoStatusBadge>
-              {viewModel.tags.map((tag) => (
-                <TodoTag key={tag}>{tag}</TodoTag>
-              ))}
-              {viewModel.dueDate && (
-                <TodoTag>
-                  Due:{" "}
-                  {formatDateAsFullDayDisplay(
-                    parseDateString(viewModel.dueDate),
-                  )}
-                </TodoTag>
-              )}
-            </TagsContainer>
-          </TodoContentArea>
-
-          <div className="flex">
-            <TodoEditButton onClick={handleEdit}>
-              <EditIcon />
-            </TodoEditButton>
-            <TodoDeleteButton onClick={handleDelete}>
-              <DeleteIcon />
-            </TodoDeleteButton>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (viewType === "day") {
-    return (
-      <div className="flex items-start">
-        <TodoToggleButton
-          $completed={viewModel.completed}
-          onClick={handleCompleteToggle}
-        >
-          {viewModel.completed ? (
-            <TodoCheckIcon $completed={viewModel.completed} />
-          ) : (
-            <TodoCircleIcon $completed={viewModel.completed} />
-          )}
-        </TodoToggleButton>
-
-        <div className="flex-1 min-w-0">
-          <h4
-            className={`${viewModel.completed ? "text-gray-500 line-through" : "text-gray-900"}`}
-          >
-            {viewModel.title}
-          </h4>
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            <TodoTagIcon />
-            <TodoStatusBadge $completed={viewModel.completed}>
-              {viewModel.displayStatus}
-            </TodoStatusBadge>
-            {viewModel.tags.map((tag) => (
-              <TodoTag key={tag}>{tag}</TodoTag>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex space-x-2 ml-2">
-          <TodoDeleteButton onClick={handleDelete}>
-            <DeleteIcon />
-          </TodoDeleteButton>
-          <TodoEditButton onClick={handleEdit}>
-            <EditIcon />
-          </TodoEditButton>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <TodoCard $completed={viewModel.completed}>
-      <TodoItemLayout>
-        <TodoToggleButton
-          $completed={viewModel.completed}
-          onClick={handleCompleteToggle}
-        >
-          {viewModel.completed ? (
-            <TodoCheckIcon $completed={viewModel.completed} />
-          ) : (
-            <TodoCircleIcon $completed={viewModel.completed} />
-          )}
-        </TodoToggleButton>
-
-        <TodoContentArea>
-          <TodoTitle $completed={viewModel.completed}>
-            {viewModel.title}
-          </TodoTitle>
-          <TagsContainer>
-            <TodoTagIcon />
-            <TodoStatusBadge $completed={viewModel.completed}>
-              {viewModel.displayStatus}
-            </TodoStatusBadge>
-            {viewModel.tags.map((tag) => (
-              <TodoTag key={tag}>{tag}</TodoTag>
-            ))}
-            {viewModel.dueDate && (
-              <TodoTag>
-                Due:{" "}
-                {formatDateAsFullDayDisplay(parseDateString(viewModel.dueDate))}
-              </TodoTag>
-            )}
-          </TagsContainer>
-        </TodoContentArea>
-
-        <TodoDeleteButton onClick={handleDelete}>
-          <DeleteIcon />
-        </TodoDeleteButton>
-        <TodoEditButton onClick={handleEdit}>
-          <EditIcon />
-        </TodoEditButton>
-      </TodoItemLayout>
-    </TodoCard>
-  );
+  console.warn(`Unhandled viewType in TodoItem: ${viewType}`);
+  return null;
 }

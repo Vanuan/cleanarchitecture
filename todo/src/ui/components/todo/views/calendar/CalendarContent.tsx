@@ -17,6 +17,7 @@ interface CalendarContentProps {
     dueDate?: string;
     isAllDay?: boolean;
   }) => void;
+  styleVariant?: "inverted" | "default";
 }
 
 const CalendarContent: React.FC<CalendarContentProps> = ({
@@ -25,6 +26,7 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
   isLoading = false,
   error = null,
   onAddItem,
+  styleVariant = "default",
 }) => {
   const { view } = useCalendarNavigation();
 
@@ -58,13 +60,24 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
           todos={items}
           renderItem={renderItem}
           onAddItem={onAddItem}
+          styleVariant={styleVariant}
         />
       )}
       {view === "week" && (
-        <WeekView todos={items} renderItem={renderItem} onAddItem={onAddItem} />
+        <WeekView
+          todos={items}
+          renderItem={renderItem}
+          onAddItem={onAddItem}
+          styleVariant={styleVariant}
+        />
       )}
       {view === "day" && (
-        <DayView todos={items} renderItem={renderItem} onAddItem={onAddItem} />
+        <DayView
+          todos={items}
+          renderItem={renderItem}
+          onAddItem={onAddItem}
+          styleVariant={styleVariant}
+        />
       )}
     </>
   );

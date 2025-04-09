@@ -14,6 +14,11 @@ import {
 } from "../../../../../lib/utils/date";
 import { DayNavigation } from './organisms/AdaptiveNavigation';
 
+// Import style definitions
+import {
+    DayViewStyleVariant,
+    getDayViewStyleProps,
+} from "./atoms/dayViewStyles";
 
 interface DayViewProps {
   todos: TodoViewModel[];
@@ -25,15 +30,52 @@ interface DayViewProps {
     dueDate?: string;
     isAllDay?: boolean;
   }) => void;
+  styleVariant?: DayViewStyleVariant; // Add styleVariant prop
 }
 
+// Add generic icon components (or import if available globally)
+const InfoIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10"></circle>
+    <line x1="12" y1="16" x2="12" y2="12"></line>
+    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+  </svg>
+);
+const PlusIcon: React.FC<{ className?: string }> = ({ className }) => (
+   <svg
+    xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M5 12h14"></path><path d="M12 5v14"></path>
+  </svg>
+);
+const ClockIcon: React.FC<{ className?: string }> = ({ className }) => (
+   <svg
+    xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+  </svg>
+);
+
 // Constants for time display
-const START_HOUR = 6; // 6 AM
-const END_HOUR = 19; // 7 PM
+const START_HOUR = 6;
+const END_HOUR = 19;
 
-const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
+const DayView: React.FC<DayViewProps> = ({
+    todos,
+    renderItem,
+    onAddItem,
+    styleVariant = "default", // Default to "default"
+ }) => {
   const { currentDate, setCurrentDate } = useCalendarNavigation();
-
+  const styles = getDayViewStyleProps(styleVariant); // Get styles
 
   // State for selected day
   const [selectedDay, setSelectedDay] = useState<Date>(currentDate);
@@ -44,55 +86,30 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
   // Get todos for the selected day
   const todosForSelectedDay = useTodosForDate(selectedDay, todos);
 
-  // Separate all-day tasks from time-specific tasks
+  // Separate all-day tasks
   const allDayTodos = todosForSelectedDay.filter((todo) => {
-    // If isAllDay flag is explicitly set, use it
     if (todo.isAllDay !== undefined) return todo.isAllDay;
-
-    // Otherwise, use the existing logic for backward compatibility
     if (!todo.dueDate) return true;
-
     try {
       const date = parseISO(todo.dueDate);
       const hour = date.getHours();
-
-      // Consider tasks as all-day if:
-      // 1. They're at midnight (00:00)
-      // 2. They're outside business hours
-      return (
-        (hour === 0 && date.getMinutes() === 0) ||
-        hour < START_HOUR ||
-        hour > END_HOUR
-      );
+      return (hour === 0 && date.getMinutes() === 0) || hour < START_HOUR || hour > END_HOUR;
     } catch (error) {
-      console.error(
-        "Error parsing date for all-day check:",
-        error,
-        todo.dueDate,
-      );
+      console.error("Error parsing date for all-day check:", error, todo.dueDate);
       return true;
     }
   });
 
+  // Separate scheduled tasks
   const scheduledTodos = todosForSelectedDay.filter((todo) => {
-    // If isAllDay flag is explicitly set, use it
     if (todo.isAllDay !== undefined) return !todo.isAllDay;
-
-    // Otherwise, use the existing logic for backward compatibility
     if (!todo.dueDate) return false;
-
     try {
       const date = parseISO(todo.dueDate);
       const hour = date.getHours();
-
-      // Only show tasks within business hours in the schedule
       return hour >= START_HOUR && hour <= END_HOUR;
     } catch (error) {
-      console.error(
-        "Error parsing date for scheduled check:",
-        error,
-        todo.dueDate,
-      );
+      console.error("Error parsing date for scheduled check:", error, todo.dueDate);
       return false;
     }
   });
@@ -100,31 +117,18 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
   // Position todo based on time
   const getTimePosition = (todo: TodoViewModel) => {
     if (!todo.dueDate) return null;
-
     try {
       const startDate = parseDateString(todo.dueDate);
       if (!startDate) return null;
       const startHour = startDate.getHours();
       const startMinutes = startDate.getMinutes();
-
-      // Only show tasks within our time range
       if (startHour < START_HOUR || startHour > END_HOUR) return null;
-
-      // Calculate duration (default to 1 hour if endDate not provided)
       let durationMinutes = 60;
       if (todo.endDate) {
         const endDate = parseDateString(todo.endDate);
-        if (!endDate) return null;
-        durationMinutes =
-          (endDate.getTime() - startDate.getTime()) / (1000 * 60);
+        if (endDate) durationMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60);
       }
-
-      return {
-        hour: startHour,
-        minutes: startMinutes,
-        durationMinutes,
-        todo,
-      };
+      return { hour: startHour, minutes: startMinutes, durationMinutes, todo };
     } catch (e) {
       console.error("Error parsing date for time position:", e);
       return null;
@@ -132,17 +136,14 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
   };
 
 
-  // Handle adding an all-day task
+  // Handle adding tasks
   const handleAddAllDayTask = () => {
     if (onAddItem) {
-      // Create a date at midnight for all-day tasks
       const allDayDate = cloneDate(selectedDay);
       allDayDate.setHours(0, 0, 0, 0);
       onAddItem({ dueDate: serializeDate(allDayDate), isAllDay: true });
     }
   };
-
-  // Handle adding a task at a specific time
   const handleAddTimeTask = (hour: number) => {
     if (onAddItem) {
       const dateWithTime = serializeDate(setHours(selectedDay, hour));
@@ -150,56 +151,38 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
     }
   };
 
+  // Current time indicator state
   const [currentTime, setCurrentTime] = useState(new Date());
-
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
-      <DayNavigation 
+    <div className={styles.viewContainerClassName}> {/* Apply view container style */}
+      <DayNavigation
         currentDate={currentDate}
         onDateChange={setCurrentDate}
-        styleVariant="inverted"
+        styleVariant={styleVariant} // Pass variant to navigation
       />
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto p-3"> {/* Added padding to scroll container */}
         {/* All-day tasks section */}
-        <div className="bg-white mb-3 shadow-sm">
-          <div className="p-3 border-b border-gray-200 flex justify-between items-center">
-            <h3 className="font-medium text-gray-900">All Day Tasks</h3>
-            <div className="text-xs text-gray-500 flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-1"
-              >
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
+        <div className={styles.allDaySectionContainerClassName}> {/* Apply style */}
+          <div className={styles.allDayHeaderContainerClassName}> {/* Apply style */}
+            <h3 className={styles.allDayHeaderTitleClassName}>All Day Tasks</h3> {/* Apply style */}
+            <div className={styles.allDayHeaderHintClassName}> {/* Apply style */}
+              <InfoIcon className={styles.allDayHintIconClassName} /> {/* Apply style */}
               Includes tasks outside business hours
             </div>
           </div>
 
-          <div className="divide-y divide-gray-100">
+          <div className={styles.allDayItemsContainerClassName}> {/* Apply style */}
             {allDayTodos.length > 0 ? (
               allDayTodos.map((todo) => (
-                <div key={todo.id} className="p-3">
+                <div key={todo.id} className={styles.allDayItemWrapperClassName}> {/* Apply style */}
                   {todo.dueDate && new Date(todo.dueDate).getHours() !== 0 && (
-                    <div className="text-xs text-gray-500 mb-1">
+                    <div className={styles.allDayItemTimeClassName}> {/* Apply style */}
                       {format(new Date(todo.dueDate), "h:mm a")}
                     </div>
                   )}
@@ -207,32 +190,18 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
                 </div>
               ))
             ) : (
-              <div className="p-3 text-gray-500 text-center">
+              <div className={styles.allDayEmptyStateClassName}> {/* Apply style */}
                 No all-day tasks
               </div>
             )}
 
             {onAddItem && (
-              <div className="p-3">
+              <div className={styles.allDayAddButtonContainerClassName}> {/* Apply style */}
                 <button
                   onClick={handleAddAllDayTask}
-                  className="w-full py-2 border border-dashed border-gray-300 rounded-lg text-blue-500 flex items-center justify-center"
+                  className={styles.allDayAddButtonClassName} // Apply style
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4 mr-1"
-                  >
-                    <path d="M5 12h14"></path>
-                    <path d="M12 5v14"></path>
-                  </svg>
+                  <PlusIcon className={styles.allDayAddButtonIconClassName} /> {/* Apply style */}
                   Add all-day task
                 </button>
               </div>
@@ -241,12 +210,12 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
         </div>
 
         {/* Schedule section */}
-        <div className="bg-white shadow-sm">
-          <div className="p-3 border-b border-gray-200">
-            <h3 className="font-medium text-gray-900">Schedule</h3>
+        <div className={styles.scheduleSectionContainerClassName}> {/* Apply style */}
+          <div className={styles.scheduleHeaderContainerClassName}> {/* Apply style */}
+            <h3 className={styles.scheduleHeaderTitleClassName}>Schedule</h3> {/* Apply style */}
           </div>
 
-          <div className="relative">
+          <div className={styles.scheduleGridClassName}> {/* Apply style */}
             {Array.from(
               { length: END_HOUR - START_HOUR + 1 },
               (_, i) => START_HOUR + i,
@@ -257,60 +226,35 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
               });
 
               return (
-                <div
-                  key={hour}
-                  className="flex border-b border-gray-100 last:border-b-0"
-                >
-                  <div className="w-16 py-2 px-2 text-right text-xs text-gray-500 border-r border-gray-100">
-                    {hour === 12
-                      ? "12 PM"
-                      : hour < 12
-                        ? `${hour} AM`
-                        : `${hour - 12} PM`}
+                <div key={hour} className={styles.timeSlotWrapperClassName}> {/* Apply style */}
+                  <div className={styles.timeLabelClassName}> {/* Apply style */}
+                    {hour === 12 ? "12 PM" : hour < 12 ? `${hour} AM` : `${hour - 12} PM`}
                   </div>
 
                   <div
-                    className="flex-1 min-h-[70px] relative"
-                    onClick={() => handleAddTimeTask(hour)}
+                    className={styles.timeSlotClassName} // Apply style
+                    onClick={() => handleAddTimeTask(hour)} // Keep click handler
                   >
                     {hourTodos.map((todo) => {
                       const position = getTimePosition(todo);
-                      if (!position) {
-                        // all day event?
-                        return <></>;
-                      }
+                      if (!position) return null; // Should not happen based on filter, but safe check
+
                       return (
                         <div
                           key={todo.id}
-                          className="absolute inset-x-2 rounded-md p-2 overflow-hidden hover:bg-blue-200 transition-colors border-l-4 border-blue-500"
+                          className={styles.taskItemClassName} // Apply style
                           style={{
-                            top: `${(position.minutes / 60) * 70}px`,
-                            height: `${Math.max(30, (position.durationMinutes / 60) * 70)}px`,
+                            top: `${(position.minutes / 60) * 70}px`, // Keep dynamic positioning
+                            height: `${Math.max(30, (position.durationMinutes / 60) * 70)}px`, // Keep dynamic positioning
                           }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
+                          onClick={(e) => { e.stopPropagation(); }} // Allow clicking task to edit, stop propagation
                         >
-                          <div className="font-medium text-sm">
+                          <div className={styles.taskItemTitleClassName}> {/* Apply style */}
                             {todo.title}
                           </div>
                           {todo.dueDate && (
-                            <div className="flex items-center text-xs text-gray-600 mt-1">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="h-3 w-3 mr-1"
-                              >
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                              </svg>
+                            <div className={styles.taskItemTimeClassName}> {/* Apply style */}
+                              <ClockIcon className={styles.taskItemTimeIconClassName} /> {/* Apply style */}
                               {format(new Date(todo.dueDate), "h:mm a")}
                             </div>
                           )}
@@ -321,17 +265,15 @@ const DayView: React.FC<DayViewProps> = ({ todos, renderItem, onAddItem }) => {
                 </div>
               );
             })}
+            {/* Current time indicator */}
             {isToday(selectedDay) && (
               <div
-                className="absolute left-16 right-0 border-t-2 border-red-500 z-20"
+                className={styles.currentTimeIndicatorClassName} // Apply style
                 style={{
-                  top: `${
-                    Math.max(0, (currentTime.getHours() - START_HOUR) * 70) +
-                    (currentTime.getMinutes() / 60) * 70
-                  }px`,
+                  top: `${Math.max(0, (currentTime.getHours() - START_HOUR) * 70) + (currentTime.getMinutes() / 60) * 70}px`, // Keep dynamic positioning
                 }}
               >
-                <div className="w-2 h-2 rounded-full bg-red-500 -mt-1 -ml-1"></div>
+                <div className={styles.currentTimeDotClassName}></div> {/* Apply style */}
               </div>
             )}
           </div>

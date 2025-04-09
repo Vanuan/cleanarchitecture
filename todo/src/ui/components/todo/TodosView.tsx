@@ -18,6 +18,7 @@ import { LoadingState, Spinner } from "./styles";
 import { useCallback, useEffect } from "react";
 import { parseDateString } from "../../../lib/utils/date";
 import useUiStore from "./store/uiStore";
+import { CalendarViewType } from "./views/calendar-hooks";
 
 const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
   id: todo.id,
@@ -37,14 +38,15 @@ export function TodosView() {
   // Get state and actions from uiStore
   const currentView = useUiStore(
     (state) => state.currentView as EntityViewType,
-  ); // Cast to combined type
+  );
   const setCurrentView = useUiStore(
     (state) => state.setCurrentView as (v: EntityViewType) => void,
-  ); // Cast setter
+  );
   const isFormOpen = useUiStore((state) => state.isFormOpen);
   const setIsFormOpen = useUiStore((state) => state.setIsFormOpen);
   const editingTodoViewModel = useUiStore((state) => state.editingTodo);
   const setEditingTodoViewModel = useUiStore((state) => state.setEditingTodo);
+  const calendarViewType = useUiStore((state) => state.calendarViewType);
 
   const closeForm = useCallback(() => {
     setIsFormOpen(false);
@@ -62,8 +64,6 @@ export function TodosView() {
   useEffect(() => {
     // When switching to the calendar view, ensure a default sub-view is selected
     if (currentView === "calendar") {
-      const calendarViewType = useUiStore.getState().calendarViewType;
-      // If no calendar view is selected, set a default one
       if (
         !calendarViewType ||
         !["month", "week", "day"].includes(calendarViewType)
@@ -125,15 +125,22 @@ export function TodosView() {
   );
 
   const renderTodoItem = useCallback(
-    (viewModel: TodoViewModel) => (
-      <TodoItem
-        key={viewModel.id}
-        viewModel={viewModel}
-        onEdit={handleEditTodo}
-        viewType={currentView}
-      />
-    ),
-    [handleEditTodo, currentView],
+    (viewModel: TodoViewModel) => {
+      const actualViewType =
+        currentView === "calendar"
+          ? calendarViewType || "month"
+          : currentView;
+
+      return (
+        <TodoItem
+          key={viewModel.id}
+          viewModel={viewModel}
+          onEdit={handleEditTodo}
+          viewType={actualViewType as EntityViewType}
+        />
+      );
+    },
+    [handleEditTodo, currentView, calendarViewType],
   );
 
   const handleCalendarAddItem = useCallback(
@@ -199,7 +206,6 @@ export function TodosView() {
       renderItem: renderTodoItem,
       config: {
         dateField: "dueDate",
-        // defaultView: currentView === "calendar" ? "month" : currentView,
       },
       onAddItem: handleCalendarAddItem,
     },

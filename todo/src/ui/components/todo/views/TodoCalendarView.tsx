@@ -55,6 +55,10 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
     setCalendarViewType(view);
   };
 
+  const styleVariant = useUiStore(
+    (state) => state.styleVariant,
+  );
+
   return (
     <CalendarProvider
       initialConfig={{ ...defaultConfig, ...config }}
@@ -70,6 +74,7 @@ const TodoCalendarView: React.FC<ViewProps<TodoViewModel>> = ({
             isLoading={isLoading}
             error={error}
             onAddItem={onAddItem}
+            styleVariant={styleVariant}
           />
         </div>
       </>
