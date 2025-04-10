@@ -41,8 +41,8 @@ interface Props {
 }
 
 export function TodoItem({ viewModel, viewType, onEdit }: Props) {
-  const { mutate: updateTodo } = useUpdateTodo();
-  const { mutate: deleteTodo } = useDeleteTodo();
+  const { mutateAsync: updateTodo } = useUpdateTodo();
+  const { mutateAsync: deleteTodo } = useDeleteTodo();
 
   const handleCompleteToggle = () => {
     updateTodo({

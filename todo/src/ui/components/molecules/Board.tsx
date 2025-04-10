@@ -71,29 +71,60 @@ interface ColumnProps {
   title: string;
 }
 
-// Define your custom components (outside your main component)
+// Enhanced TaskCard with better drag animation handling
 const TaskCard: React.FC<DraggableComponentProps<Task, TaskCardProps>> = ({
   item,
   isDragging,
   dragHandleProps,
   additionalProps,
-}) => (
-  <div
-    {...dragHandleProps}
-    className={`
-      p-4 m-2 bg-white border-l-4 border-l-blue-500 shadow-sm rounded
-      ${isDragging ? 'bg-gray-100' : 'bg-white'} 
-      ${isDragging ? 'opacity-80' : 'opacity-100'} 
-      cursor-grab transition-all duration-200 hover:shadow-md
-      transform hover:-translate-y-1 hover:scale-[1.01]
-    `}
-  >
-    <div className="flex justify-between items-center">
-    {additionalProps?.renderItem(item)}
-    </div>
-  </div>
-);
+}) => {
+  // Get a color based on the task id to make them more visually distinct
+  const getRandomColor = (id: string) => {
+    const colors = [
+      'border-l-blue-500',
+      'border-l-green-500',
+      'border-l-yellow-500',
+      'border-l-red-500',
+      'border-l-purple-500',
+      'border-l-pink-500',
+      'border-l-indigo-500',
+    ];
+    
+    // Simple hash function to get consistent color for the same ID
+    const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+  };
 
+  return (
+    <div
+      {...dragHandleProps}
+      className={`
+        p-4 m-2 bg-white ${getRandomColor(item.id)} border-l-4 shadow-sm rounded
+        ${isDragging ? 'bg-blue-50 scale-105' : 'bg-white hover:-translate-y-1 hover:scale-[1.01]'} 
+        ${isDragging ? 'opacity-50' : 'opacity-100'} 
+        cursor-grab transition-all duration-300 ease-in-out hover:shadow-md
+        transform will-change-transform
+      `}
+      style={{
+        // Apply some subtle spring-like animation
+        transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      }}
+    >
+      <div className="flex justify-between items-center">
+        {additionalProps?.renderItem(item)}
+      </div>
+      
+      {/* Add a subtle indicator to show the item is draggable */}
+      <div className="flex justify-end mt-2 text-gray-300">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+// Enhanced TaskColumn with column-specific styling and improved drop indicators
 const TaskColumn: React.FC<DroppableComponentProps<ColumnProps>> = ({
   id,
   isActive,
@@ -102,21 +133,63 @@ const TaskColumn: React.FC<DroppableComponentProps<ColumnProps>> = ({
   additionalProps,
   dropRef,
 }) => {
+  // Get column color theme based on ID
+  const getColumnTheme = (columnId: string) => {
+    const themes = {
+      'todo': { border: 'border-l-blue-500', bg: 'from-blue-100 to-indigo-50', count: 'bg-blue-500' },
+      'in-progress': { border: 'border-l-amber-500', bg: 'from-amber-100 to-yellow-50', count: 'bg-amber-500' },
+      'review': { border: 'border-l-purple-500', bg: 'from-purple-100 to-pink-50', count: 'bg-purple-500' },
+      'done': { border: 'border-l-emerald-500', bg: 'from-emerald-100 to-green-50', count: 'bg-emerald-500' },
+    };
+    
+    // Default theme if column ID doesn't match
+    const defaultTheme = { border: 'border-l-gray-500', bg: 'from-gray-100 to-gray-50', count: 'bg-gray-500' };
+    return themes[columnId as keyof typeof themes] || defaultTheme;
+  };
+
+  const theme = getColumnTheme(id.toString());
+  const childrenCount = React.Children.count(children);
+  
   return (
-    <Column $isOver={isOver} $isActive={isActive} ref={dropRef}>
-      <ColumnTitle>{additionalProps?.title || id}</ColumnTitle>
-      <div className="flex-1 p-1 min-h-[200px]">
-        <div className="space-y-3">{children}</div>
-        {isOver &&
-            isActive &&
-             (
-              <div className="h-16 mt-2 border-2 border-dashed border-blue-400 rounded-lg bg-blue-50 opacity-50 transition-all duration-300" />
-            )}
+    <Column 
+      $isOver={isOver} 
+      $isActive={isActive} 
+      ref={dropRef}
+      className={isOver ? 'scale-[1.02] shadow-lg' : ''}
+    >
+      <ColumnTitle className={`bg-gradient-to-r ${theme.bg}`}>
+        <span>{additionalProps?.title || id}</span>
+        <span className={`${theme.count} text-white text-xs font-medium px-2.5 py-1 rounded-full transition-all`}>
+          {childrenCount}
+        </span>
+      </ColumnTitle>
+      <div className={`flex-1 p-2 min-h-[200px] transition-all duration-300 ${isOver ? 'bg-blue-50 bg-opacity-30' : ''}`}>
+        <div className="space-y-3 transition-transform duration-300">
+          {children}
+        </div>
+        
+        {/* Enhanced drop indicator that transitions smoothly */}
+        {isOver && isActive && (
+          <div className="mt-2 rounded-lg transition-all duration-300 animate-pulse">
+            <div className="h-16 border-2 border-dashed border-blue-400 rounded-lg bg-blue-50 bg-opacity-70 flex items-center justify-center">
+              <div className="text-sm text-blue-500 font-medium flex items-center">
+                <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+                Drop here
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Show empty state when no tasks */}
+        {!isOver && childrenCount === 0 && (
+          <EmptyColumn />
+        )}
       </div>
     </Column>
   );
 };
-
 const TaskDragPreview: React.FC<{ item: Task }> = ({ item }) => (
   <div className="p-4 bg-white rounded-md shadow-xl border-2 border-blue-300 rotate-1 scale-105 transition-transform">
     <div className="flex items-center justify-between">
@@ -138,7 +211,7 @@ function TaskBoard<T>({ renderItem, items, columns, onItemUpdate } : {
     title: string;
     filter: (item: T) => boolean;
   }[];
-  onItemUpdate?: (id: string, columnId: string) => void;
+  onItemUpdate?: (id: string, columnId: string) => Promise<T>;
 })  {
 
   const boardColumns = columns.map(c => c.id);
@@ -160,10 +233,10 @@ function TaskBoard<T>({ renderItem, items, columns, onItemUpdate } : {
       .join(" "),
   });
 
-  const handleSetColumnId = (item: Task, columnId: string) => {
+  const handleSetColumnId = async (item: Task, columnId: string) => {
     const updatedItem = { ...item };
     if (onItemUpdate) {
-      onItemUpdate(item.id, columnId);
+      await onItemUpdate(item.id, columnId);
     }
     return updatedItem;
   };
@@ -172,9 +245,8 @@ function TaskBoard<T>({ renderItem, items, columns, onItemUpdate } : {
       <DndContainer<Task, TaskCardProps, ColumnProps>
         items={items}
         columns={boardColumns}
-        onItemsChange={() => {}}
         getColumnId={getColumnId}
-        setColumnId={handleSetColumnId as (item: Task, columnId: string) => Task}
+        setColumnId={handleSetColumnId as (item: Task, columnId: string) => Promise<Task>}
         draggableComponent={TaskCard}
         droppableComponent={TaskColumn}
         dragOverlayComponent={TaskDragPreview}
