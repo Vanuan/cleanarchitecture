@@ -11,14 +11,41 @@ const GridView = tw.div`
   grid grid-cols-1 md:grid-cols-2 gap-4 relative
 `;
 
+const TaskPlaceholder = () => (
+  <div className="animate-pulse">
+    <div className="h-12 bg-gray-200 rounded mb-2"></div>
+    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+  </div>
+);
+
+// Empty column state
+const EmptyColumn = () => (
+  <div className="flex flex-col items-center justify-center h-40 text-gray-400">
+    <svg className="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    </svg>
+    <p className="text-sm">Drag items here</p>
+  </div>
+);
+
+
 const Column = tw.div<{ $isOver?: boolean; $isActive?: boolean }>`
-  flex flex-col rounded-lg shadow-sm border border-gray-200 bg-white
-  ${({ $isOver }) => ($isOver ? "ring-2 ring-blue-500" : "")}
+  flex flex-col rounded-lg shadow-md border border-gray-200 bg-white
+  hover:shadow-lg transition-all duration-300
+  ${({ $isOver }) => ($isOver ? "ring-2 ring-blue-500 ring-opacity-70" : "")}
+  ${({ $isActive }) => ($isActive ? "bg-blue-50 bg-opacity-30" : "")}
+  overflow-hidden
 `;
 
+
 const ColumnTitle = tw.h2`
-  p-4 border-b border-gray-200 font-bold text-lg bg-gradient-to-r from-blue-50 to-emerald-50 flex items-center text-gray-800
+  p-4 border-b border-gray-200 font-bold text-lg 
+  bg-gradient-to-r from-blue-50 to-emerald-50
+  flex items-center justify-between text-gray-800
+  rounded-t-lg sticky top-0 z-10
 `;
+
 
 interface BoardProps<T extends Task> {
   items: T[];
@@ -53,18 +80,16 @@ const TaskCard: React.FC<DraggableComponentProps<Task, TaskCardProps>> = ({
 }) => (
   <div
     {...dragHandleProps}
-    style={{
-      padding: "16px",
-      margin: "8px",
-      backgroundColor: isDragging ? "#f5f5f5" : "#fff",
-      borderLeft: `4px solid "#ccc"`,
-      boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-      cursor: "grab",
-      opacity: isDragging ? 0.8 : 1,
-    }}
+    className={`
+      p-4 m-2 bg-white border-l-4 border-l-blue-500 shadow-sm rounded
+      ${isDragging ? 'bg-gray-100' : 'bg-white'} 
+      ${isDragging ? 'opacity-80' : 'opacity-100'} 
+      cursor-grab transition-all duration-200 hover:shadow-md
+      transform hover:-translate-y-1 hover:scale-[1.01]
+    `}
   >
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
-      {additionalProps?.renderItem(item)}
+    <div className="flex justify-between items-center">
+    {additionalProps?.renderItem(item)}
     </div>
   </div>
 );
@@ -78,14 +103,14 @@ const TaskColumn: React.FC<DroppableComponentProps<ColumnProps>> = ({
   dropRef,
 }) => {
   return (
-    <Column $isOver={isOver} $isActive={isActive} ref={dropRef} style={{}}>
+    <Column $isOver={isOver} $isActive={isActive} ref={dropRef}>
       <ColumnTitle>{additionalProps?.title || id}</ColumnTitle>
       <div className="flex-1 p-1 min-h-[200px]">
-        <div className="space-y-2">{children}</div>
+        <div className="space-y-3">{children}</div>
         {isOver &&
             isActive &&
              (
-              <div className="h-16 border-2 border-dashed border-blue-400 rounded-lg bg-blue-50 opacity-50" />
+              <div className="h-16 mt-2 border-2 border-dashed border-blue-400 rounded-lg bg-blue-50 opacity-50 transition-all duration-300" />
             )}
       </div>
     </Column>
@@ -93,17 +118,14 @@ const TaskColumn: React.FC<DroppableComponentProps<ColumnProps>> = ({
 };
 
 const TaskDragPreview: React.FC<{ item: Task }> = ({ item }) => (
-  <div className="shadow-lg bg-white rounded border border-gray-200 transform scale-105"
-    style={{
-      padding: "16px",
-      backgroundColor: "#fff",
-      borderRadius: "4px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-      transform: "rotate(3deg) scale(1.02)",
-    }}
-  >
-    <h4 style={{ margin: 0 }}>{item.title}</h4>
-    <span style={{ fontSize: "0.8em", color: "#666" }}>Moving...</span>
+  <div className="p-4 bg-white rounded-md shadow-xl border-2 border-blue-300 rotate-1 scale-105 transition-transform">
+    <div className="flex items-center justify-between">
+      <h4 className="font-medium text-gray-800">{item.title}</h4>
+      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        Moving
+      </span>
+    </div>
+    <div className="mt-2 w-full h-1 bg-gradient-to-r from-blue-300 to-indigo-500 rounded-full animate-pulse"></div>
   </div>
 );
 
