@@ -21,27 +21,25 @@ export const TaskDragPreview: React.FC<TaskDragPreviewProps> = ({ item }) => {
     config: { mass: 1, tension: 300, friction: 20 }
   }));
 
-  // Suppress react-spring animated.div typing error by casting as any
+  const AnimatedDiv = animated('div');
+
   return (
-    (animated.div as any)({
-      className: "p-4 bg-white rounded-md border-2 border-blue-300",
-      style: {
+    <AnimatedDiv
+      className="p-4 bg-white rounded-md border-2 border-blue-300"
+      style={{
         boxShadow: '0 10px 20px rgba(0, 0, 0, 0.15)',
         opacity: props.opacity,
         zIndex: 1000,
         userSelect: 'none',
         width: '280px',
-      },
-      children: (
-        <>
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium text-gray-800">{item.title}</h4>
-          </div>
-          <div className={`mt-2 w-full h-1 bg-gradient-to-r ${getAnimationColor()} rounded-full`}>
-            <div className="h-full w-1/3 bg-white bg-opacity-30 rounded-full animate-pulse"></div>
-          </div>
-        </>
-      ),
-    })
+      }}
+    >
+      <div className="flex items-center justify-between">
+        <h4 className="font-medium text-gray-800">{item.title}</h4>
+      </div>
+      <div className={`mt-2 w-full h-1 bg-gradient-to-r ${getAnimationColor()} rounded-full`}>
+        <div className="h-full w-1/3 bg-white bg-opacity-30 rounded-full animate-pulse"></div>
+      </div>
+    </AnimatedDiv>
   );
 };
