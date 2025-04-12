@@ -30,81 +30,67 @@ interface BoardProps<T extends Task> {
 }
 
 
-// Main component
-function TaskBoard<T extends Task>({ renderItem, items, columns, onItemUpdate, onItemEdit }) {
-  const boardColumns = columns.map(c => c.id);
-  
+function TaskBoard<T extends Task>({
+  renderItem,
+  items,
+  columns,
+  onItemUpdate,
+  onItemEdit,
+}: BoardProps<T>) {
+  const boardColumns = columns.map((c) => c.id);
+
   // Function to find the column for an item
-  const getColumnId = (item) => {
-    const column = columns.find(c => c.filter(item));
-    return column?.id || columns[0]?.id || '';
+  const getColumnId = (item: T) => {
+    const column = columns.find((c) => c.filter(item));
+    return column?.id || columns[0]?.id || "";
   };
 
   // Additional props for components
-  const getTaskCardProps = () => ({ 
+  const getTaskCardProps = () => ({
     renderItem,
-    // Make sure we provide any needed props for task rendering
-    itemProps: { 
-      className: "w-full" 
+    itemProps: {
+      className: "w-full",
     },
     onEdit: onItemEdit,
   });
 
-  const getColumnProps = (columnId) => ({
+  const getColumnProps = (columnId: string) => ({
     title: columnId
       .split("-")
       .map((word) => word[0].toUpperCase() + word.slice(1))
       .join(" "),
-    // Add extra props for column setup
-    columnClassName: "h-full"
+    columnClassName: "h-full",
   });
 
-  const handleSetColumnId = async (item, columnId) => {
-    // Mark item as pending during update
-    const pendingItem = { ...item, status: 'pending' };
-    
+  const handleSetColumnId = async (item: T, columnId: string): Promise<T> => {
     try {
       let updatedItem = { ...item };
       if (onItemUpdate) {
         updatedItem = await onItemUpdate(item.id, columnId);
       }
-      return { ...updatedItem, status: undefined }; // Clear status after successful update
+      return { ...updatedItem, status: undefined };
     } catch (err) {
       console.error("Error updating item:", err);
-      return { ...item, status: 'error' }; // Mark as error if update fails
+      return { ...item, status: "error" as const };
     }
   };
 
   return (
-    <DndContainer
+    <DndContainer<T, any, any>
       items={items}
       columns={boardColumns}
       getColumnId={getColumnId}
       setColumnId={handleSetColumnId}
-      draggableComponent={TaskCard}
-      droppableComponent={TaskColumn}
-      dragOverlayComponent={TaskDragPreview}
-      containerComponent={GridView}
+      draggableComponent={TaskCard as React.ComponentType<any>}
+      droppableComponent={TaskColumn as React.ComponentType<any>}
+      dragOverlayComponent={TaskDragPreview as React.ComponentType<any>}
+      containerComponent={GridView as React.ComponentType<any>}
       getDraggableProps={getTaskCardProps}
       getDroppableProps={getColumnProps}
     />
   );
 }
 
-export function Board<T extends Task>({
-  items,
-  columns,
-  onItemUpdate,
-  renderItem,
-  onItemEdit,
-}: BoardProps<T>) {
-  return (
-    <TaskBoard
-      columns={columns}
-      renderItem={(item) => renderItem(item)}
-      items={items}
-      onItemUpdate={onItemUpdate}
-      onItemEdit={onItemEdit}
-    />
-  );
+export function Board<T extends Task>(props: BoardProps<T>) {
+  return <TaskBoard {...props} />;
 }

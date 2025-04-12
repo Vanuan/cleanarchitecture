@@ -30,7 +30,16 @@ const TaskCount = tw.span`
   text-white text-xs font-medium px-2.5 py-1 rounded-full
 `;
 
-export const TaskColumn = ({ id, isActive, isOver, children, additionalProps, dropRef }) => {
+import { DroppableComponentProps } from "./DndContainer";
+
+export const TaskColumn: React.FC<DroppableComponentProps<{ title?: string; columnClassName?: string }>> = ({
+  id,
+  isActive,
+  isOver,
+  children,
+  additionalProps,
+  dropRef,
+}) => {
   // Get column theme
   const getColumnTheme = (columnId: 'todo' | 'completed') => {
     const themes = {
@@ -42,7 +51,7 @@ export const TaskColumn = ({ id, isActive, isOver, children, additionalProps, dr
     return themes[columnId] || themes['default'];
   };
   
-  const theme = getColumnTheme(id.toString());
+  const theme = getColumnTheme(id.toString() as 'todo' | 'completed');
   const childrenCount = React.Children.count(children);
   
   // Animation for column hover/drop state

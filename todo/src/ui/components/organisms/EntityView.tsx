@@ -19,17 +19,19 @@ export interface ViewConfig<T extends Entity, P = object> {
     items: T[];
     config: P;
     getItemId: (item: T) => string;
-    onItemUpdate?: (id: string, newValue: unknown) => void;
+    onItemUpdate?: (id: string, columnId: string) => Promise<T>;
     renderItem: (item: T) => React.ReactNode;
     onAddItem?: (item: Partial<T>) => void;
     setCurrentView: (v: EntityViewType) => void;
     currentView: EntityViewType;
+    onItemEdit?: (item: T) => void;
   }>;
   config?: P;
   getItemId?: (item: T) => string;
-  onItemUpdate?: (id: string, newValue: unknown) => void;
+  onItemUpdate?: (id: string, columnId: string) => Promise<T>;
   onAddItem?: (item: Partial<T>) => void;
   renderItem: (item: T) => React.ReactNode;
+  onItemEdit?: (item: T) => void;
 }
 
 export type FormModel<T> = Partial<T>;

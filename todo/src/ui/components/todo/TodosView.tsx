@@ -192,9 +192,9 @@ export function TodosView() {
       component: TodoBoardView,
       config: {},
       getItemId: (item) => item.id,
-      onItemUpdate: (id, columnId) => {
+      onItemUpdate: (id: string, columnId: string) => {
         const completed = columnId === "completed";
-        return handleUpdateTodo(id, { completed });
+        return handleUpdateTodo(id, { completed }).then((todo) => mapTodoToViewModel(todo));
       },
       onItemEdit: handleEditTodo,
       renderItem: renderTodoItem,

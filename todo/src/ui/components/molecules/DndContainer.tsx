@@ -1,8 +1,7 @@
-import React, { useState, ReactNode, useRef, useEffect } from 'react';
+import React, { useState, ReactNode, useEffect } from 'react';
 import {
   DndContext,
   DragOverlay,
-  closestCorners,
   PointerSensor,
   TouchSensor,
   useSensor,
@@ -16,7 +15,6 @@ import {
   pointerWithin,
   rectIntersection,
 } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
 
 // Base item type
 export type BaseItem = {

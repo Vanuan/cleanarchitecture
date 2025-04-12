@@ -5,9 +5,9 @@ import { Board } from "../../molecules/Board";
 interface TodoBoardViewProps {
   items: TodoViewModel[];
   getItemId: (item: TodoViewModel) => string;
-  onItemUpdate?: (id: string, columnId: string) => void;
+  onItemUpdate?: (id: string, columnId: string) => Promise<TodoViewModel>;
   renderItem: (item: TodoViewModel) => React.ReactNode;
-  onItemEdit: (item: TodoViewModel) => void;
+  onItemEdit?: (item: TodoViewModel) => void;
 }
 
 const TodoBoardView: React.FC<TodoBoardViewProps> = ({
@@ -30,7 +30,7 @@ const TodoBoardView: React.FC<TodoBoardViewProps> = ({
   ];
 
   return (
-    <Board
+    <Board<TodoViewModel>
       items={items}
       columns={boardColumns}
       onItemUpdate={onItemUpdate}

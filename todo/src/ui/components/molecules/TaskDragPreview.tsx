@@ -1,6 +1,11 @@
 import { useSpring, animated } from '@react-spring/web';
+import React from "react";
 
-export const TaskDragPreview = ({ item }) => {
+interface TaskDragPreviewProps {
+  item: { title: string };
+}
+
+export const TaskDragPreview: React.FC<TaskDragPreviewProps> = ({ item }) => {
   const getAnimationColor = () => {
     return 'from-green-300 to-emerald-500';    
   };
@@ -16,23 +21,27 @@ export const TaskDragPreview = ({ item }) => {
     config: { mass: 1, tension: 300, friction: 20 }
   }));
 
+  // Suppress react-spring animated.div typing error by casting as any
   return (
-    <animated.div 
-      className="p-4 bg-white rounded-md border-2 border-blue-300"
-      style={{
+    (animated.div as any)({
+      className: "p-4 bg-white rounded-md border-2 border-blue-300",
+      style: {
         boxShadow: '0 10px 20px rgba(0, 0, 0, 0.15)',
         opacity: props.opacity,
         zIndex: 1000,
         userSelect: 'none',
         width: '280px',
-      }}
-    >
-      <div className="flex items-center justify-between">
-        <h4 className="font-medium text-gray-800">{item.title}</h4>
-      </div>
-      <div className={`mt-2 w-full h-1 bg-gradient-to-r ${getAnimationColor()} rounded-full`}>
-        <div className="h-full w-1/3 bg-white bg-opacity-30 rounded-full animate-pulse"></div>
-      </div>
-    </animated.div>
+      },
+      children: (
+        <>
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-gray-800">{item.title}</h4>
+          </div>
+          <div className={`mt-2 w-full h-1 bg-gradient-to-r ${getAnimationColor()} rounded-full`}>
+            <div className="h-full w-1/3 bg-white bg-opacity-30 rounded-full animate-pulse"></div>
+          </div>
+        </>
+      ),
+    })
   );
 };

@@ -1,30 +1,31 @@
-import { useSpring, animated, config } from '@react-spring/web';
+import { useSpring, animated } from '@react-spring/web';
 import { useEffect } from 'react';
 import { GripVertical, Circle, Clock } from 'lucide-react';
 import React from 'react';
+import { DraggableComponentProps, BaseItem } from "./DndContainer";
 
-interface TaskItem {
+interface TaskItem extends BaseItem {
   completed: boolean;
   content?: string;
-  status?: string;
+  status?: "idle" | "pending" | "error" | undefined;
   [key: string]: any;
 }
 
-interface TaskCardProps {
-  item: TaskItem;
-  isDragging: boolean;
-  dragHandleProps: any;
-  additionalProps?: {
-    onEdit?: (item: TaskItem) => void;
-    renderItem?: (item: TaskItem) => React.ReactNode;
-  };
-}
+type TaskCardProps = DraggableComponentProps<TaskItem, {
+  onEdit?: (item: TaskItem) => void;
+  renderItem?: (item: TaskItem) => React.ReactNode;
+}>;
 
 const getColumnId = (item: TaskItem): string => {
   return item.completed ? 'completed' : 'todo';
 }
 
-export const TaskCard = ({ item, isDragging, dragHandleProps, additionalProps }: TaskCardProps) => {
+export const TaskCard: React.FC<TaskCardProps> = ({
+  item,
+  isDragging = false,
+  dragHandleProps,
+  additionalProps,
+}) => {
   // Get a color based on the task id
   const getTheme = (item: TaskItem) => {
     const themes: Record<string, { border: string }> = {
