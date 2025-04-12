@@ -89,7 +89,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         `} 
         style={{
           boxShadow: `0 2px 4px rgba(0, 0, 0, 0.05)`,
-          touchAction: 'none'
         }}
         onClick={() => additionalProps?.onEdit?.(item)}
       >
