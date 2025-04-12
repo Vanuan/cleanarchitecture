@@ -39,6 +39,7 @@ function TaskBoard<T extends Task>({
 }: BoardProps<T>) {
   const boardColumns = columns.map((c) => c.id);
 
+
   // Function to find the column for an item
   const getColumnId = (item: T) => {
     const column = columns.find((c) => c.filter(item));

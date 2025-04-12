@@ -43,7 +43,9 @@ export interface DroppableComponentProps<P = object> {
   additionalProps?: P;
 }
 
-// Main container props
+/**
+ * Main container props
+ */
 interface DndContainerProps<T extends BaseItem, DP = object, DpP = object> {
   items: T[];
   columns: string[];
@@ -329,15 +331,23 @@ export const DndContainer = <T extends BaseItem, DP = object, DpP = object>({
       >
         {children || (
           <>
-            {columns.map(columnId => (
-              <ConnectedDroppable key={columnId} id={columnId}>
-                {items
-                  .filter(item => getCurrentColumnId(item) === columnId)
-                  .map(item => (
+            {(() => {
+              // Group items by their current column in a single pass
+              const columnMap: Record<string, T[]> = {};
+              columns.forEach((col) => { columnMap[col] = []; });
+              items.forEach((item: T) => {
+                const colId = getCurrentColumnId(item);
+                if (!columnMap[colId]) columnMap[colId] = [];
+                columnMap[colId].push(item);
+              });
+              return columns.map(columnId => (
+                <ConnectedDroppable key={columnId} id={columnId}>
+                  {columnMap[columnId].map((item: T) => (
                     <ConnectedDraggable key={item.id} item={item} />
                   ))}
-              </ConnectedDroppable>
-            ))}
+                </ConnectedDroppable>
+              ));
+            })()}
           </>
         )}
         <DragOverlay>
