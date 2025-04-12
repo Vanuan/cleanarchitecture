@@ -31,8 +31,8 @@ const mapTodoToViewModel = (todo: Todo): TodoViewModel => ({
 
 export function TodosView() {
   const { data: todos, isLoading } = useTodos();
-  const { mutate: updateTodo } = useUpdateTodo();
-  const { mutate: createTodo } = useCreateTodo();
+  const { mutateAsync: updateTodo } = useUpdateTodo();
+  const { mutateAsync: createTodo } = useCreateTodo();
 
   // Get state and actions from uiStore
   const currentView = useUiStore(
@@ -115,9 +115,10 @@ export function TodosView() {
 
       // Don't submit empty updates
       if (Object.keys(domainUpdates).length > 0) {
-        updateTodo({ id, updates: domainUpdates });
+        return updateTodo({ id, updates: domainUpdates });
       } else {
         console.warn("Update called with no changes from form data.");
+        throw "Update called with no changes from form data."
       }
     },
     [updateTodo],
@@ -191,10 +192,11 @@ export function TodosView() {
       component: TodoBoardView,
       config: {},
       getItemId: (item) => item.id,
-      onItemUpdate: (id, columnId) => {
+      onItemUpdate: (id: string, columnId: string) => {
         const completed = columnId === "completed";
-        handleUpdateTodo(id, { completed });
+        return handleUpdateTodo(id, { completed }).then((todo) => mapTodoToViewModel(todo));
       },
+      onItemEdit: handleEditTodo,
       renderItem: renderTodoItem,
     },
     {
