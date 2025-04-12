@@ -67,7 +67,10 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
 
   if (viewType === "board" || viewType === "list" || viewType === "week" || viewType === "day") {
     return (
-      <BoardItemCard $completed={viewModel.completed}>
+      <BoardItemCard 
+        $completed={viewModel.completed}
+        onClick={viewType === "board" ? handleEdit : undefined}
+      >
         <TodoItemLayout>
           <button
             className={`mt-1 transition-colors ${
@@ -75,7 +78,10 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
                 ? "text-emerald-500 hover:text-emerald-600"
                 : "text-gray-400 hover:text-blue-500"
             }`}
-            onClick={handleCompleteToggle}
+            onClick={(e) => {
+              if (viewType === "board") e.stopPropagation();
+              handleCompleteToggle();
+            }}
             aria-label={
               viewModel.completed ? "Mark as incomplete" : "Mark as complete"
             }
@@ -109,15 +115,17 @@ export function TodoItem({ viewModel, viewType, onEdit }: Props) {
               )}
             </TagsContainer>
           </TodoContentArea>
-
-          <div className="flex space-x-1">
-            <BoardEditButton onClick={handleEdit} aria-label="Edit task">
-              <BoardEditIcon />
-            </BoardEditButton>
-            <BoardDeleteButton onClick={handleDelete} aria-label="Delete task">
-              <BoardDeleteIcon />
-            </BoardDeleteButton>
-          </div>
+          
+          {viewType !== "board" && (
+            <div className="flex space-x-1">
+              <BoardEditButton onClick={handleEdit} aria-label="Edit task">
+                <BoardEditIcon />
+              </BoardEditButton>
+              <BoardDeleteButton onClick={handleDelete} aria-label="Delete task">
+                <BoardDeleteIcon />
+              </BoardDeleteButton>
+            </div>
+          )}
         </TodoItemLayout>
       </BoardItemCard>
     );

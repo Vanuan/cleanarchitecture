@@ -7,12 +7,14 @@ interface TodoBoardViewProps {
   getItemId: (item: TodoViewModel) => string;
   onItemUpdate?: (id: string, columnId: string) => void;
   renderItem: (item: TodoViewModel) => React.ReactNode;
+  onItemEdit: (item: TodoViewModel) => void;
 }
 
 const TodoBoardView: React.FC<TodoBoardViewProps> = ({
   items,
   onItemUpdate,
   renderItem,
+  onItemEdit,
 }) => {
   const boardColumns = [
     {
@@ -33,6 +35,7 @@ const TodoBoardView: React.FC<TodoBoardViewProps> = ({
       columns={boardColumns}
       onItemUpdate={onItemUpdate}
       renderItem={renderItem}
+      onItemEdit={onItemEdit}
     />
   );
 };

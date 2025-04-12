@@ -196,6 +196,7 @@ export function TodosView() {
         const completed = columnId === "completed";
         return handleUpdateTodo(id, { completed });
       },
+      onItemEdit: handleEditTodo,
       renderItem: renderTodoItem,
     },
     {

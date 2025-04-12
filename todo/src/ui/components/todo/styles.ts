@@ -137,8 +137,7 @@ export const TodoEditButton = tw.button`
 
 // Container for each item in the board
 export const BoardItemCard = tw.div<{ $completed: boolean }>`
-  p-4 border-b border-gray-100 transition-all duration-200 hover:bg-gray-50
-  ${({ $completed }) => ($completed ? "bg-gray-50" : "bg-white")}
+  w-full
 `;
 
 // Tag component for board view with conditional styling

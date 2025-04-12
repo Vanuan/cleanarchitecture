@@ -168,6 +168,7 @@ export function EntityView<T extends Entity, P = object>({
       onAddItem: viewOnAddItem,
       currentView,
       setCurrentView,
+      onItemEdit: currentViewConfig.onItemEdit,
     };
 
     return <ViewComponent {...componentProps} />;
