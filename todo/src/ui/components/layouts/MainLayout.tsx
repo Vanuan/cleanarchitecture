@@ -18,22 +18,12 @@ const ContentWrapper = tw.div`
 
 interface MainLayoutProps {
   children: React.ReactNode;
-  currentView: EntityViewType;
-  onViewChange: (view: EntityViewType) => void;
   onAddClick: () => void;
-  viewConfigs: Array<{
-    id: EntityViewType;
-    label: string;
-    icon: React.ReactNode;
-  }>;
 }
 
 export function MainLayout({
   children,
-  currentView,
-  onViewChange,
   onAddClick,
-  viewConfigs,
 }: MainLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -99,9 +89,6 @@ export function MainLayout({
   return (
     <LayoutContainer>
       <ResponsiveSidebar
-        currentView={currentView}
-        onViewChange={onViewChange}
-        viewConfigs={viewConfigs}
         isCollapsed={isCollapsed}
         onCollapseChange={setIsCollapsed}
         isOpen={isSidebarOpen}
@@ -110,7 +97,6 @@ export function MainLayout({
       <ContentWrapper ref={contentWrapperRef}>
         <TitleBar 
           onMenuClick={handleMenuClick} 
-          currentView={currentView} 
           onAddClick={onAddClick}
           isVisible={isTitleBarVisible}
         />
@@ -120,4 +106,4 @@ export function MainLayout({
       </ContentWrapper>
     </LayoutContainer>
   );
-} 
+}

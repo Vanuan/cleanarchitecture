@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import tw from "tailwind-styled-components";
-import { EntityViewType } from "./EntityView";
 import { Menu, Plus } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { viewRoutes } from "../../routes/viewRoutes";
 
 const TitleBarContainer = tw.div<{ $isVisible: boolean }>`
   sticky w-full top-0 flex items-center justify-between border-b border-gray-200 z-10 flex-shrink-0
@@ -23,12 +24,11 @@ const ActionButton = tw.button`
 
 interface TitleBarProps {
   onMenuClick: () => void;
-  currentView: EntityViewType;
   onAddClick: () => void;
   isVisible: boolean;
 }
 
-export function TitleBar({ onMenuClick, currentView, onAddClick, isVisible }: TitleBarProps) {
+export function TitleBar({ onMenuClick, onAddClick, isVisible }: TitleBarProps) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -41,6 +41,10 @@ export function TitleBar({ onMenuClick, currentView, onAddClick, isVisible }: Ti
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const location = useLocation();
+  const currentLabel =
+    viewRoutes.find((route) => route.path === location.pathname)?.label || "";
+
   return (
     <TitleBarContainer $isVisible={isVisible}>
       {isMobile && (
@@ -50,7 +54,7 @@ export function TitleBar({ onMenuClick, currentView, onAddClick, isVisible }: Ti
       )}
       
       <Title>
-        <TitleText>{currentView}</TitleText>
+        <TitleText>{currentLabel}</TitleText>
       </Title>
       
       <ActionButton onClick={onAddClick}>
@@ -58,4 +62,4 @@ export function TitleBar({ onMenuClick, currentView, onAddClick, isVisible }: Ti
       </ActionButton>
     </TitleBarContainer>
   );
-} 
+}

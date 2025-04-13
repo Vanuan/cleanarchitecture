@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import tw from "tailwind-styled-components";
-import { EntityViewType } from "./EntityView";
 import { X, ChevronRight, ChevronLeft, CheckSquare } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
+import { viewRoutes } from "../../routes/viewRoutes";
 
 const Overlay = tw.div<{ $isOpen: boolean }>`
   fixed inset-0 bg-black bg-opacity-50 z-20 transition-opacity duration-300
@@ -64,13 +65,6 @@ const CollapseButton = tw.button`
 `;
 
 interface ResponsiveSidebarProps {
-  currentView: EntityViewType;
-  onViewChange: (view: EntityViewType) => void;
-  viewConfigs: Array<{
-    id: EntityViewType;
-    label: string;
-    icon: React.ReactNode;
-  }>;
   isCollapsed: boolean;
   onCollapseChange: (isCollapsed: boolean) => void;
   isOpen: boolean;
@@ -78,15 +72,13 @@ interface ResponsiveSidebarProps {
 }
 
 export function ResponsiveSidebar({
-  currentView,
-  onViewChange,
-  viewConfigs,
   isCollapsed,
   onCollapseChange,
   isOpen,
   onOpenChange,
 }: ResponsiveSidebarProps) {
   const [isMobile, setIsMobile] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleResize = () => {
@@ -109,21 +101,6 @@ export function ResponsiveSidebar({
       onCollapseChange(!isCollapsed);
     }
   };
-
-  const renderNavItem = (view: { id: EntityViewType; label: string; icon: React.ReactNode }) => (
-    <NavItem
-      key={view.id}
-      $active={currentView === view.id}
-      $isCollapsed={isCollapsed && !isMobile}
-      onClick={() => {
-        onViewChange(view.id);
-        if (isMobile) onOpenChange(false);
-      }}
-    >
-      <NavIcon>{view.icon}</NavIcon>
-      <NavLabel $isCollapsed={isCollapsed && !isMobile}>{view.label}</NavLabel>
-    </NavItem>
-  );
 
   return (
     <>
@@ -151,7 +128,28 @@ export function ResponsiveSidebar({
               {(!isCollapsed || isMobile) && (
                 <h3 className="text-sm font-medium text-gray-500 px-4 mb-2">Views</h3>
               )}
-              {viewConfigs.map(renderNavItem)}
+              {viewRoutes.map((route) => (
+                <NavLink
+                  key={route.path}
+                  to={route.path}
+                  end
+                  style={{ all: "unset" }}
+                  tabIndex={0}
+                >
+                  {({ isActive }) => (
+                    <NavItem
+                      $active={isActive || location.pathname === route.path}
+                      $isCollapsed={isCollapsed && !isMobile}
+                      onClick={() => {
+                        if (isMobile) onOpenChange(false);
+                      }}
+                    >
+                      <NavIcon>{route.icon}</NavIcon>
+                      <NavLabel $isCollapsed={isCollapsed && !isMobile}>{route.label}</NavLabel>
+                    </NavItem>
+                  )}
+                </NavLink>
+              ))}
             </div>
           </div>
           
@@ -174,4 +172,4 @@ export function ResponsiveSidebar({
       </SidebarContainer>
     </>
   );
-} 
+}
