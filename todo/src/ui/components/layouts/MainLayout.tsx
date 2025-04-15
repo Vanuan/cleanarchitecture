@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import tw from "tailwind-styled-components";
 import { ResponsiveSidebar } from "../organisms/ResponsiveSidebar";
 import { TitleBar } from "../organisms/TitleBar";
-import { EntityViewType } from "../organisms/EntityView";
 
 const LayoutContainer = tw.div`
   h-screen bg-gray-50 flex overflow-hidden

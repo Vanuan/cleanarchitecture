@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { TodosView } from "../components/todo/TodosView";
 import useUiStore from "../components/todo/store/uiStore";
 

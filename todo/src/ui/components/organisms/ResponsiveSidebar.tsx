@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import tw from "tailwind-styled-components";
 import { X, ChevronRight, ChevronLeft, CheckSquare } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
