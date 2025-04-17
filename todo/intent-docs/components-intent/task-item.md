@@ -10,55 +10,66 @@ To visually represent a single todo item within the Todo application, providing 
 * **Visual Distinction:** Each task is contained in its own card with subtle shadows and hover effects.
 * **Consistent Layout:** Maintain a predictable structure with completion indicator on the left, content in the middle, and actions on the right.
 * **Interactive Feedback:** Provide clear visual cues for all interactive elements.
+* **Draggable (in Board View):** Provide visual indicators that tasks can be dragged and reordered.
 
 **Key Elements & Intent:**
 
 * **Container Card:** White rounded card with subtle shadow and border that enhances shadow on hover.
-* **Completion Indicator:** Left-aligned circle icon that changes to a green checkmark when completed.
+* **Drag Handle (Board View):** Left-aligned grip icon indicating draggability.
+* **Completion Indicator:** Circle icon that changes to a green checkmark when completed.
 * **Title:** Medium-weight text that receives strikethrough styling when completed, and changes color from dark gray to lighter gray.
-* **Tags Section:** A row of pill-shaped tags below the title showing:
-  * Status tag (Todo in blue, Done in green)
-  * Category tags in purple
-  * Due date information in purple
+* **Metadata Tags:** A row of pill-shaped tags below the title showing:
+  * Due date with clock icon in gray
+  * Other relevant metadata
 * **Action Buttons:** Right-aligned icons for delete (trash) and edit (pen) that change color on hover.
+* **Visual State Indicators:** Left border (blue for todo, emerald/green for completed) in board view.
 
 **Visual Hierarchy:**
 
-1. **Completion Status:** Left-positioned circle/checkmark is the primary interaction point.
+1. **Completion Status:** The circle/checkmark is the primary interaction point.
 2. **Title:** Clear, medium-weight text that's the most visually prominent content.
-3. **Tags:** Smaller, colored pills that provide supplementary information.
+3. **Metadata Tags:** Smaller, neutral-colored pills that provide supplementary information.
 4. **Actions:** Right-aligned utility functions that are visually subdued until hovered.
 
 **Color Palette:**
 
-* **Incomplete Task:** White background with dark gray text
-* **Complete Task:** Light gray background with medium gray text
-* **Todo Tag:** Blue background with darker blue text
-* **Done Tag:** Green background with darker green text
-* **Category/Due Date Tags:** Purple background with darker purple text
+* **Incomplete Task:**
+  * White background with dark gray text
+  * Blue left border (in board view)
+  * Gray circle icon
+* **Complete Task:**
+  * White background with strikethrough gray text
+  * Green/emerald left border (in board view)
+  * Green checkmark icon
+* **Due Date Tag:** Gray background with darker gray text and clock icon
 * **Action Icons:** Gray that changes to red (delete) or blue (edit) on hover
 
 **Completed State Changes:**
 
 * Circle icon → Green checkmark icon
-* White background → Light gray background
-* Dark text → Medium gray text with strikethrough
-* "Todo" tag → "Done" tag (blue to green)
+* Normal text → Medium gray text with strikethrough
+* Blue left border → Green/emerald left border (in board view)
 
 **Spacing & Layout:**
 
-* Consistent padding within the card (16px)
+* Consistent padding within the card
 * Appropriate spacing between elements
-* Full-width cards with rounded corners (8px radius)
+* Rounded corners (8px radius)
 * Vertically centered elements with proper alignment
 
 **Interactions:**
 
 * Clicking the completion indicator toggles completion state
+* Dragging (in board view) allows repositioning tasks between columns
 * Hovering over the card slightly increases its shadow
 * Hovering over action buttons changes their color
 * Edit and delete buttons provide clear feedback on interaction
 
+**Responsive Behavior:**
+* Maintains consistent design across screen sizes
+* Action buttons may be condensed on smaller screens
+* Ensures touch targets are appropriately sized for mobile use
+
 **Overall Style:**
 
-Modern, clean, card-based design with clear visual indicators and a strong focus on user interaction feedback.
+Modern, clean, card-based design with clear visual indicators, subtle state changes, and a strong focus on user interaction feedback.

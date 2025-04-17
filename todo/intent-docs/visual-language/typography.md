@@ -1,79 +1,172 @@
-# Visual Language: Typography
+# Visual Language: Typography - Implementation Details
 
 **Intent:**
 
-To establish a clean, modern typographic system that enhances readability, communicates information hierarchy, and contributes to the overall design aesthetic of the Todo application.
+The Todo application implements a clean, modern typographic system that enhances readability, communicates information hierarchy, and contributes to the overall design aesthetic.
 
-**Font Family:**
+**Implemented Typography System:**
 
-* **Primary:** A modern sans-serif font (system default sans-serif stack).
+## Font Family
 
-**Font Sizes & Weights:**
+The application uses the system default sans-serif stack provided by Tailwind:
 
-* **Application Title (H1):**
-  * Size: Large (`text-center`)
-  * Weight: Bold
-  * Used for the main "Todo App" heading
+```css
+font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
+  "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", 
+  "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+```
 
-* **Task Titles (H3):**
-  * Size: Base (`text-gray-900`)
-  * Weight: Medium (`font-medium`)
-  * Used for the main content of each task card
-  * Strikethrough and color change to `text-gray-500` when completed
+This ensures optimal rendering across all platforms and devices.
+
+## Text Size & Weight Implementation
+
+### Headers and Titles
+
+* **App Title:**
+  * Implemented as: `text-xl font-bold text-white` in sidebar header
+  * Additional styling: Placed on gradient background for emphasis
+  * Location: Top of sidebar navigation
+
+* **View Titles:**
+  * Implemented as: `text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-600 font-semibold`
+  * Unique styling: Uses gradient text effect for visual interest
+  * Location: Title bar at top of each view
+
+* **Section Headers:**
+  * Implemented as: `text-sm font-medium text-gray-500` for sidebar section labels
+  * Calendar section headers: `font-medium text-gray-900`
+  * Board column headers: `font-medium text-gray-700`
+
+### Task Typography
+
+* **Task Titles:**
+  * Implemented as: `text-gray-900 font-medium`
+  * When completed: `line-through text-gray-500`
+  * Transitions: `transition-all duration-300 ease-in-out` for smooth state changes
+
+* **Task Metadata Text:**
+  * Due dates: `text-xs text-gray-600` with clock icon
+  * Tags: `text-xs` with color-coordinated background and text
+  * Status indicators: `text-xs font-medium` with appropriate status colors
+
+### UI Element Typography
 
 * **Button Text:**
-  * Size: Base
-  * Weight: Normal
-  * Consistent across all action buttons
+  * Primary buttons: `text-white font-medium` on colored backgrounds
+  * Secondary actions: Context-appropriate text colors
+  * Icon buttons: Often use only icons with aria-labels
 
-* **Tag Text:**
-  * Size: Extra Small (`text-xs`)
-  * Weight: Normal
-  * Used for status, category, and due date tags
+* **Navigation Text:**
+  * Nav items: `text-gray-700 hover:text-gray-500` with selected state variations
+  * Calendar navigation: Text size varies from `text-xs` to `text-lg` based on hierarchy
 
-**Font Colors:**
+* **Form Element Text:**
+  * Labels: `text-sm font-medium text-gray-700`
+  * Input text: Standard base font size
+  * Helper text: `text-xs text-gray-500`
 
-* **Primary Text:** Dark gray (`text-gray-900`) for task titles and main content
-* **Secondary Text:** Medium gray (`text-gray-600`) for less prominent elements
-* **Completed Task Text:** Medium gray (`text-gray-500`) with strikethrough
-* **Button Text:** Either white (on colored backgrounds) or contextual colors based on button type
-* **Tag Text:** Color coordinated with background (blue text on blue background, etc.)
+## Text Styling Implementation
 
-**Text Styling:**
+### Component-Specific Typography
 
-* **Normal Tasks:** Clean, medium-weight text for maximum readability
-* **Completed Tasks:** Strikethrough text with reduced opacity
-* **Interactive Elements:** Text color changes on hover for buttons and actions
+```tsx
+// Task title implementation (from TodoItem.tsx)
+<TodoTitle $completed={viewModel.completed}>
+  {viewModel.title}
+</TodoTitle>
 
-**Visual Hierarchy:**
+// Defined in styles.ts
+export const TodoTitle = tw.h3<{ $completed: boolean }>`
+  font-medium transition-all duration-300 ease-in-out
+  ${({ $completed }) => 
+    $completed 
+      ? "line-through text-gray-500" 
+      : "text-gray-900"
+  }
+`;
 
-* App title has largest font size and central placement
-* Task titles are prominently displayed with medium weight
-* Tags and metadata use smaller text size
-* Clear distinction between active and completed task text
+// Tag implementation (BoardTag from styles.ts)
+export const BoardTag = tw.span<{ $tagType: "todo" | "done" | "other" }>`
+  text-xs px-2 py-1 rounded-full flex items-center border
+  ${({ $tagType }) =>
+    $tagType === "todo"
+      ? "bg-blue-100 text-blue-500 border-blue-200"
+      : $tagType === "done"
+        ? "bg-emerald-100 text-emerald-600 border-emerald-200"
+        : "bg-blue-50 text-blue-600 border-blue-100"
+  }
+`;
+```
 
-**Text Alignment:**
+### Text Truncation & Overflow
 
-* App title: Centered
-* Task titles: Left-aligned
-* Button text: Centered within buttons
-* Tag text: Centered within tag pills
+* Task tiles use `min-w-0` to enable text truncation in flex layouts
+* Long content can be truncated with `truncate` where appropriate
+* Calendar entries use explicit truncation: `truncate ${viewModel.completed ? "line-through" : ""}`
 
-**Line Height & Spacing:**
+### Special Typography Treatments
 
-* Appropriate line height for all text elements
-* Proper vertical spacing between text and other elements
-* Consistent text baseline alignment within components
+* **Gradient Text:**
+  * Used for emphasis in titles: `text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-600`
+  * Creates visual interest and connection to the app's color theme
+  * Applied to selected view indicators and "Today" markers
 
-**Text Truncation:**
+* **Completion Styling:**
+  * Consistent pattern across views: `line-through text-gray-500`
+  * Visual indicator that works alongside checkbox icons
+  * Smooth transition between states with 300ms duration
 
-* Task titles may truncate with ellipsis when exceeding available space
-* Tags maintain their full text without truncation
+## Calendar Typography Specifics
 
-**Accessibility Considerations:**
+* **Month View:**
+  * Day headers: `text-sm` for compact day name display
+  * Day numbers: `text-sm font-medium`
+  * Today indicator: Bold with blue or gradient text
+  * Task counts: `text-xs text-gray-500`
 
-* Sufficient text size for readability
-* Strong contrast between text and backgrounds
+* **Week View:**
+  * Day names: `text-lg` with today highlighted
+  * Date display: `text-sm text-gray-500`
+  * "Today" marker: `text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800`
+
+* **Day View:**
+  * Section headers: `font-medium text-gray-700/900`
+  * Time indicators: `text-xs text-gray-500`
+  * Task times: `text-xs text-gray-600` with icon
+
+## Board View Typography
+
+* **Column Headers:**
+  * Title: `font-medium` with background gradient
+  * Count badge: `text-white text-xs font-medium`
+
+* **Empty States:**
+  * Text: `text-gray-400 text-sm`
+  * Clear visual distinction from active content
+
+## Responsive Typography
+
+* Text sizes remain consistent across device sizes
+* Larger text for primary interface elements on all devices
+* Condensed navigation text on smaller screens
+* Mobile adaptations prioritize touchable targets without changing text size
+
+## Accessibility Implementation
+
+* Text contrast ratios follow WCAG guidelines:
+  * Standard text: At least 4.5:1 contrast ratio
+  * Large text: At least 3:1 contrast ratio
+* Adequate base font size (16px equivalent)
+* Font weight variations to emphasize hierarchy
+* Multiple indicators for state changes (not just color or text style)
+
+**Style and Feel:**
+
+* Clean
+* Modern
+* Readable
+* Consistent
+* Well-proportioned
 * Multiple indicators beyond text styling for important states (like completion)
 
 **Style and Feel:**

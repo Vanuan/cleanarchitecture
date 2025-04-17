@@ -14,95 +14,114 @@ To provide a day-by-day overview of tasks for an entire week, allowing users to 
 
 **Key Elements & Intent:**
 
-* **App Header:**
-  * Application title with consistent styling
-  * Global navigation for switching between views
-  * Add Todo button for quick task creation
+* **View Selector:**
+  * Three-segment control for switching between Month, Week, and Day views
+  * Week view highlighted with blue-to-emerald gradient text and bottom border
+  * Clean typography and equal spacing
 
-* **Calendar Navigation:**
-  * Week identifier with date range ("Week 13 • Mar 24-30, 2025")
-  * Current week indicator ("This week")
-  * View type selector (Month, Week, Timeline, Agenda)
-  * Navigation controls for moving between weeks and returning to today
-
-* **Week Navigation:**
-  * Three-column layout showing previous, current, and next week
-  * Clear visual distinction for current week
-  * Week numbers and date ranges for context
+* **Week Navigation Row:**
+  * Row of clickable week options showing date ranges
+  * Previous/next buttons with gradient dividers for navigation
+  * Month indicator above week ranges (e.g., "Mar/Apr")
+  * Visual distinction for current week (gradient text and bottom border)
+  * Relative week indicator ("This week", "Last week", "Next week")
+  * Subtle background color for the active week option
 
 * **Day Sections:**
-  * Prominent day headers with date information
+  * Prominent day headers with name and date information
   * Special indicators for relative days ("Today", "Yesterday", "Tomorrow")
-  * Visual distinction for the current day (background color)
+  * Clean typography with larger day name and smaller date
+  * Border separation between days for clear visual distinction
   * Task cards organized chronologically within each day
-  * Empty state messaging when no tasks exist
-  * "Add task" button for each day
+  * Empty state messaging when no tasks exist ("No tasks scheduled")
+  * "Add task" button with plus icon for each day
 
 * **Task Cards:**
+  * White background cards with subtle border and shadow
   * Consistent styling with other views (board, list)
-  * Task title with clear typography
-  * Completion status indicator (circle/check icon)
-  * Tag indicators for status and metadata
-  * Action buttons (edit, delete)
-  * Visual distinction for completed tasks (strikethrough, background)
+  * Task title with clear medium-weight typography
+  * Completion status indicator (gray circle/green checkmark icon)
+  * Due date tag with clock icon in light gray pill
+  * Action buttons (edit, delete) with hover states
+  * Visual distinction for completed tasks (strikethrough, reduced opacity)
 
 **Visual Implementation Details:**
 
 * **Layout Structure:**
   * Full-width scrollable container
-  * Days arranged vertically for linear scrolling
+  * Days arranged vertically in chronological order
   * Fixed headers and navigation controls
   * Responsive design that adapts to screen sizes
 
+* **Week Navigation:**
+  * Current/active week highlighted with gradient text and bottom border
+  * Clean typography showing week date ranges
+  * Month indicator above week numbers
+  * Chevron buttons for previous/next navigation with gradient dividers
+
 * **Day Headers:**
-  * Day name and date with consistent formatting
+  * Clean typography with day name and date
+  * Consistent padding and border separation
+  * No background color to maintain clean, minimal design
   * Relative day indicators ("Today", "Tomorrow", "Yesterday") where applicable
   * Background highlighting for the current day
 
 * **Task Cards:**
-  * Distinct cards for each task
-  * Clear visual hierarchy within cards
-  * Status indicators on the left
-  * Task content in the center
-  * Actions on the right
-  * Consistent internal spacing and typography
+  * White background with subtle border and shadow
+  * Rounded corners matching global component style
+  * Left-aligned completion status indicator
+  * Medium-weight title that gets strikethrough styling when completed
+  * Light gray metadata pill with clock icon
+  * Right-aligned action buttons that change color on hover (blue for edit, red for delete)
 
-* **Navigation Controls:**
-  * Segmented control for view switching
-  * Week navigation with previous/next buttons
-  * "Today" button for quickly returning to current date
-  * Hover states for interactive elements
+* **Empty States:**
+  * Centered "No tasks scheduled" message in light gray italic text
+  * Blue "Add task" button with plus icon below empty state message
+  * Sufficient padding for visual breathing room
+
+**Controls & Navigation:**
+  * "Today" button with blue-to-emerald gradient background for returning to current date
+  * Previous/Next navigation arrows for moving between weeks
+  * Gradient divider lines separating navigation elements
 
 **Interaction Patterns:**
 
-* Click on week navigation to move between weeks
-* Use view selector to change calendar representation
+* Click on week selector to navigate between weeks
+* Use Previous/Next buttons to move to adjacent weeks
+* Click "Today" to jump to the current date
 * Click "Add task" within a day to create a new task for that specific date
-* Toggle task completion with the status icon
-* Edit or delete tasks using the action buttons
-* Use "Today" button to quickly navigate to current date
-
-**Information Hierarchy:**
-
-1. Current week and date range (primary temporal context)
-2. Day headers with relative indicators (secondary temporal context)
-3. Task content organized by day (primary content)
-4. Task metadata including status and tags (secondary content)
-5. Action buttons for task management (utility functions)
+* Toggle task completion with the circle/checkmark icon
+* Edit or delete tasks using the action buttons that reveal on hover
+* Dashed border "Add task" button at the bottom of each day's tasks
 
 **Task States:**
 
 * **Incomplete Task:**
-  * White background
-  * Circle icon for status
-  * Normal text weight
-  * "Todo" tag in blue
+  * White background card
+  * Gray circle icon for completion status
+  * Normal medium-weight text
+  * Full opacity
 
 * **Complete Task:**
-  * Gray background
-  * Checkmark icon in green
-  * Strikethrough text
-  * "Done" tag in green
+  * White background card with reduced opacity (70%)
+  * Green checkmark icon
+  * Strikethrough gray text
+  * Visual de-emphasis compared to incomplete tasks
+
+**Mobile Considerations:**
+* Fixed-position gradient add button in bottom right corner
+* Touch-friendly tap targets for all interactive elements
+* Appropriate spacing for comfortable touch interaction
+* Maintained visual hierarchy on smaller screens
+
+**Information Hierarchy:**
+
+1. Current week highlighting (primary temporal context)
+2. Day headers with clear typography (secondary temporal context)
+3. Task content organized by day (primary content)
+4. Task completion status (important interactive element)
+5. Task metadata including due dates (secondary content)
+6. Action buttons for task management (utility functions)
 
 **Style and Feel:**
 
@@ -112,3 +131,5 @@ To provide a day-by-day overview of tasks for an entire week, allowing users to 
 * Day-focused
 * Actionable
 * Clean
+* Consistent blue-to-emerald gradient accents
+* Modern card-based design

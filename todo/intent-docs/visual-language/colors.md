@@ -1,76 +1,119 @@
-# Visual Language: Colors
+# Visual Language: Colors - Implementation Details
 
 **Intent:**
 
-To define a color palette that creates visual hierarchy, communicates status effectively, and contributes to a modern, clean interface for the Todo application.
+The Todo application implements a color palette that creates visual hierarchy, communicates status effectively, and contributes to a modern, clean interface.
 
-**Core Palette:**
+**Implemented Color System:**
 
-* **Primary Action Blue:**
-  * Background: Tailwind's `blue-500` (#3b82f6) for primary action buttons
-  * Text: White (#ffffff) for text on blue backgrounds
-  * Hover: Tailwind's `blue-600` for hover states on primary buttons
+## Primary Action Colors
 
-* **Selected/Active State:**
-  * Background: Tailwind's `blue-100` (#e0f2fe) for selected tabs, backgrounds
-  * Text: Tailwind's `blue-600` (#2563eb) for text in selected state elements
-
-* **Success Green:**
-  * Icon: Tailwind's `green-500` (#16a34a) for completion checkmarks
-  * Background: Tailwind's `green-100` (#dcfce7) for "Done" tag backgrounds
-  * Text: Tailwind's `green-700` (#15803d) for text in green backgrounds
-  * Hover: Tailwind's `green-600` (#16a34a) for hover states
-
-* **Todo Blue:**
-  * Background: Tailwind's `blue-100` (#e0f2fe) for "Todo" tag backgrounds
-  * Text: Tailwind's `blue-700` (#1d4ed8) for text in blue tag backgrounds
-
-* **Metadata Purple:**
-  * Background: Tailwind's `purple-100` (#f3e8ff) for metadata tag backgrounds
-  * Text: Tailwind's `purple-700` (#7e22ce) for text in purple tag backgrounds
-
-* **Neutral (Text/Background):**
-  * Headings: Tailwind's `gray-900` (#111827) for primary text and headings
-  * Body: Tailwind's `gray-500` (#6b7280) for secondary text and completed task text
-  * Icons: Tailwind's `gray-400` (#9ca3af) for default icon states
-  * Borders: Tailwind's `gray-100` (#f3f4f6) for card borders
-  * Card Background: White (#ffffff) for task cards
-  * Page Background: Very light gray for the main application background
-  * Completed Task Background: Tailwind's `gray-50` (#f9fafb)
-
-* **Warning/Destruction Red:**
-  * Hover: Tailwind's `red-500` (#ef4444) for delete icon hover states
-
-**Usage Guidelines:**
+* **Blue Gradient:**
+  * Header uses `bg-gradient-to-r from-blue-600 to-emerald-600` for visual interest
+  * Primary titles use `text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-600`
+  * Gives the application a distinctive look that spans from blue to emerald green
 
 * **Primary Action Blue:**
-  * Used for the "Add Todo" button and other primary actions
-  * Indicates the current view in the navigation tabs
+  * Buttons use `bg-blue-500 text-white` for primary actions
+  * Hover states transition to `hover:bg-blue-600`
+  * "Add Task" buttons and primary interactive elements
 
-* **Green Elements:**
-  * Reserved for completion indicators and "Done" status
-  * Provides positive reinforcement for completed tasks
+* **Status Emerald/Green:**
+  * Completed checkmark: `text-emerald-500 hover:text-emerald-600`
+  * "Done" tag background: `bg-emerald-100 text-emerald-600 border-emerald-200`
+  * Calendar "Today" indicators: `bg-blue-100 text-blue-800`
 
-* **Tag Colors:**
-  * Blue for task status (Todo)
-  * Green for completion status (Done)
-  * Purple for metadata (categories, due dates)
+## UI Element Colors
 
-* **Interactive Elements:**
-  * Default state: Gray
-  * Hover states: Blue for positive/neutral actions, Red for destructive actions
-  * Selected states: Blue background with darker blue text
+* **Task Cards:**
+  * Active tasks: `bg-white border border-gray-100`
+  * Completed tasks: `bg-gray-50` (subtle light gray)
+  * Hover state: `hover:shadow-md` for depth enhancement
+  * Borders: Left border uses colored accents for status indication
 
-* **Background Hierarchy:**
-  * White for active task cards
-  * Light gray for completed task cards
-  * Subtle shadows to create depth
+* **Tag System:**
+  * Todo tags: `bg-blue-100 text-blue-500 border-blue-200`
+  * Done tags: `bg-emerald-100 text-emerald-600 border-emerald-200`
+  * Date tags: `bg-gray-100 text-gray-600 border-gray-200`
+  * Due soon indicator: `bg-blue-100 text-blue-600 border-blue-200`
 
-**Accessibility:**
+* **Navigation & Controls:**
+  * Sidebar: Blue/emerald gradient header with white text
+  * Selected view: `bg-blue-50 text-blue-600` or border-based indicators
+  * Unselected view: `text-gray-700 hover:bg-gray-100`
 
-* Sufficient contrast between text and backgrounds
-* Multiple indicators beyond color for important state changes
-* Hover states provide clear feedback for interactive elements
+## Text Hierarchy Colors
+
+* **Text Coloring:**
+  * Primary text: `text-gray-900` for task titles
+  * Secondary text: `text-gray-700` for headings
+  * Tertiary text: `text-gray-500` for metadata and hints
+  * Completed text: `text-gray-500` with strikethrough
+  * Interactive text: Changes color on hover (e.g., `hover:text-blue-500`)
+
+* **Icon Coloring:**
+  * Default state: `text-gray-400`
+  * Hover state: `hover:text-blue-500` for standard actions, `hover:text-red-500` for deletion
+  * Active state: Status-specific colors (e.g., emerald for completion)
+  * Grab handles: `text-gray-400 hover:text-gray-600`
+
+## Board View Specific Colors
+
+* **Column Headers:**
+  * Todo column: `from-blue-100 to-indigo-50` gradient background
+  * Completed column: `from-emerald-100 to-green-50` gradient background
+  * Count badges: `bg-blue-500` (todo) and `bg-emerald-500` (completed)
+
+* **Drop Target Highlights:**
+  * Active drop area: `border-blue-300 bg-blue-50 bg-opacity-80`
+  * Drop indicator text: `text-blue-600`
+
+## Calendar View Specific Colors
+
+* **Day Indicators:**
+  * Today: `bg-blue-50` or border highlight `border-t-2 border-emerald-400`
+  * Selected day: `bg-gradient-to-r from-blue-50 to-emerald-50` in week view
+  * Tasks on calendar: `bg-blue-50 text-blue-700` (active) and `bg-gray-100 text-gray-500` (completed)
+
+* **Period Navigation:**
+  * Selected period: `text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-600`
+  * Current day/period indicators: `text-green-600` or emerald gradient
+
+## System Feedback Colors
+
+* **Status Indicators:**
+  * Moving tasks: `bg-blue-100 text-blue-800` badge
+  * Error state: `bg-red-100 text-red-800` badge
+  * Progress indicators: `bg-blue-400` for task update progress
+
+* **Form Elements:**
+  * Input focus: `focus:ring-2 focus:ring-blue-500 focus:border-transparent`
+  * Toggle buttons: `bg-blue-600` when active, `bg-gray-200` when inactive
+  * Form labels: `text-gray-700`
+
+**Implemented UI Component Color Examples:**
+
+* **Task Card:**
+  ```
+  bg-white rounded-lg border-l-4 border-blue-500 (active)
+  bg-gray-50 rounded-lg border-l-4 border-emerald-100 (completed)
+  ```
+
+* **Primary Button:**
+  ```
+  bg-blue-500 text-white hover:bg-blue-600 focus:ring-2 focus:ring-blue-500
+  ```
+
+* **Tag Component:**
+  ```
+  bg-blue-100 text-blue-500 border border-blue-200 rounded-full px-2 py-1
+  ```
+
+**Accessibility Implementations:**
+
+* Color is never the sole indicator of state (icons, text, and position also indicate state)
+* Text has sufficient contrast with backgrounds (following WCAG guidelines)
+* Interactive elements have clear visual feedback beyond color
 
 **Style and Feel:**
 
